@@ -1,0 +1,31 @@
+{
+  "name": "bob-front",
+  "version": "0.0.1",
+  "description": "store test",
+  "main": "app.js",
+  "dependencies": {
+    "flux": "^2.1.1",
+    "immutable": "^3.7.4",
+    "react": "^0.13.0",
+    "moment": "~2.10.1",
+    "xhr-promise": "~1.2.0"
+  },
+  "devDependencies": {
+    "browserify": "^6.2.0",
+    "envify": "^3.4.0",
+    "reactify": "^1.1.1",
+    "babelify": "^6.3.0",
+    "watchify": "^3.2.2",
+    "uglify-js": "^2.4.24"
+  },
+  "scripts": {
+    "start": "watchify ./ -o bundle.js -v -d --poll"
+  },
+  "author": "Ken Wheeler",
+  "browserify": {
+    "transform": [
+      "babelify",
+      "envify"
+    ]
+  }
+}
