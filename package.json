@@ -11,15 +11,17 @@
     "xhr-promise": "~1.2.0"
   },
   "devDependencies": {
+    "babelify": "^6.3.0",
     "browserify": "^6.2.0",
     "envify": "^3.4.0",
+    "qunitjs": "^1.19.0",
     "reactify": "^1.1.1",
-    "babelify": "^6.3.0",
-    "watchify": "^3.2.2",
-    "uglify-js": "^2.4.24"
+    "uglify-js": "^2.4.24",
+    "watchify": "^3.2.2"
   },
   "scripts": {
-    "start": "watchify ./ -o bundle.js -v -d --poll"
+    "start": "watchify tests.js -o bundle-tests.js -v -d --poll",
+    "test": "browserify tests.js > bundle-tests.js"
   },
   "author": "Ken Wheeler",
   "browserify": {

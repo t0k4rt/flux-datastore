@@ -195,8 +195,3 @@ QUnit.test("Test sort collections", function( assert ) {
 
 
 
-
-
-
-
-
