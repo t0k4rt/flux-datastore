@@ -1,6 +1,5 @@
 import { Ajax } from "jquery";
 import ErrorAction from "./ErrorAction"
-import uri from "urijs"
 
 class Sync {
 

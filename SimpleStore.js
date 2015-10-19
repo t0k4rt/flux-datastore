@@ -1,7 +1,6 @@
 /* @flow */
 "use strict;"
 import Immutable from "immutable";
-import { Ajax } from "jquery";
 import { EventEmitter } from "events";
 import __dispatcher from "./Dispatcher";
 
@@ -210,7 +209,6 @@ class SimpleStore extends EventEmitter {
     } else {
       this.__add(record);
     }
-    this.emit(this.events.change);
   }
 
   update({record}) {
