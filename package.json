@@ -11,6 +11,7 @@
     "xhr-promise": "~1.2.0"
   },
   "devDependencies": {
+    "jquery": "~2.1.4",
     "babelify": "^6.3.0",
     "browserify": "^6.2.0",
     "envify": "^3.4.0",

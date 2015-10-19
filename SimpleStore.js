@@ -1,33 +1,16 @@
 /* @flow */
 "use strict;"
 import Immutable from "immutable";
+import { Ajax } from "jquery";
 import { EventEmitter } from "events";
 import __dispatcher from "./Dispatcher";
 
-// var getValueAtPath = function getValueAtPath(object :Object, path :Array) {
-//   if(typeof object === "Object") {
-//     if(object.hasOwnProperty(path.first())) {
-//       var key = path.shift();
-//       object = object[key];
-//       if(path.length === 0) {
-//         return object;
-//       }
-//       return getValueAtPath(object, path);
-//     } else {
-//       return undefined;
-//     }
-//   } else {
-//     throw new Error("object must be an Object");
-//   }
-// };
-
-
-
 let _defaultEvents = {
-  change: 'change',
-  success: 'success',
-  filter: 'filter',
-  error: 'error'
+  load:     'load',
+  change:   'change',
+  success:  'success',
+  filter:   'filter',
+  error:    'error'
 };
 
 let _defaultSortFunction = function(a, b) {
@@ -59,7 +42,7 @@ let _defaultFilterFunction = function(value, key) {
 
 class SimpleStore extends EventEmitter {
 
-  constructor(record, constants) {
+  constructor(record, constants, sync) {
     super();
     this.constants = constants;
     this.record = record;
@@ -88,34 +71,61 @@ class SimpleStore extends EventEmitter {
     this.__dispatcher = __dispatcher;
     this.__dispatcher.register(this.payloadHandler.bind(this));
     this.__dict = Immutable.Map();
+    this.__sync = sync;
+    this.__initialized = false;
   }
 
-  parseModel(data :Object) {
+
+  /********************/
+  /**  Init scripts  **/
+  /********************/
+  init() {
+    if(!this.__loaded) {
+      if(this.sync) {
+        this.sync.fetchAll(this.__loadData.bind(this));
+      } else {
+        this.__initialized = true;
+      }
+    }
+  }
+
+  __parseModel(data :Object) {
     return this.record.fromJS(data);
   }
 
-  parseCollection(data :Array<Object>) {
+  __parseCollection(data :Array<Object>) {
     data.forEach((elt, index) => {
-      let record = this.parseModel(elt);
+      let record = this.__parseModel(elt);
       this.__add(record);
     });
     this.emit(this.events.change);
   }
 
+  __loadData(data) {
+    this.__parseCollection(data);
+    this.__initialized = true;
+    this.emit(this.events.change);
+  }
+
+
+  /********************/
+  /**  Base methods  **/
+  /********************/
 
   __add(r) {
     // on check que l'élément accepte les __cid
     if(r.has("__cid")) {
-      // si le cid est null et que  la clef avec le __cid n'existe pas
-      if(r.get("__cid") === null && !this.__collection.has(r.get("__cid"))) {
-        // on sette le cid en fonction de la valeur du compteur
+      // cid must be empty / null
+      if(!r.get("__cid")) {
+        // set cid from internal collection counter
         this.__counter = this.__counter+1;
         r=r.set("__cid", "c"+this.__counter);
-        // ensuite sette v avec le __cid
+        // Set map with __cid and record
         this.__collection = this.__collection.set(r.get("__cid"), r);
-
         // add item to dict to be able to find it from id
         this.__addToDict(r);
+
+        this.emit(this.events.success);
         this.emit(this.events.change);
       }
     } else {
@@ -124,27 +134,33 @@ class SimpleStore extends EventEmitter {
   }
 
   __edit(r) {
-    let or = this.__collection.get(r.get("__cid"));
-    // check if object has changed
-    if(!Immutable.is(r, or)) {
-      this.__collection = this.__collection.set(r.get("__cid"), r);
-      // if id has changed
-      if(!or.get(this.idMap) && r.get(this.idMap)) {
-        this.__addToDict(r);
-      }
-    }
+    this.__collection = this.__collection.set(r.get("__cid"), r);
+    this.emit(this.events.success);
+    this.emit(this.events.change);
+  }
+
+  __remove(r) {
+    let cid = r.get("__cid");
+    let id = r.get("id");
+    this.__collection = this.__collection.remove(cid);
+    this.__dict = this.__dict.remove(id);
+    this.emit(this.events.success);
+    this.emit(this.events.change);
   }
 
   __addToDict(r) {
     let id = r.get("id");
-    // add item to dict to be able to find it from id
-    if(id) {
-      id = id+"";
-      if(this.__dict.has(id)) {
-        throw new Error("Id already exists");
-      } else {
-        this.__dict = this.__dict.set(id, r.get("__cid"));
-      }
+
+    // check if id is set
+    if(!id) {
+      throw new Error("Cannot index record without id.");
+    }
+
+    // check if record has not already been indexed
+    if(this.__dict.has(id)) {
+      console.warn("Record has been already indexed.", id);
+    } else {
+      this.__dict = this.__dict.set(id, r.get("__cid"));
     }
   }
 
@@ -152,13 +168,13 @@ class SimpleStore extends EventEmitter {
     return this.__collection.get(cid);
   }
 
+
   /********************/
   /** Public getters **/
   /********************/
 
   get(id) {
     if(id) {
-      id = id+"";
       let cid = this.__dict.get(id);
       if(cid) {
         return this.__getByCid(cid);
@@ -183,36 +199,49 @@ class SimpleStore extends EventEmitter {
     }
   }
 
-
-
   /**********************/
   /**  actions handler **/
   /**********************/
 
   // todo : when dealing with record, we should check that it is an instance of Record
-
   create({record}) {
-    this.__add(record);
+    if(this.sync) {
+      this.sync.create(record, this.__add.bind(this));
+    } else {
+      this.__add(record);
+    }
+    this.emit(this.events.change);
   }
 
   update({record}) {
-    if(record.get("id")) {
-      this.__edit(record);
+    // can update ?
+    if(!record.get("id")) {
+      throw new Error("Cannot update non synced entity.");
+    }
+
+    // should update ?
+    let originalRecord = this.__collection.get(record.get("__cid"));
+    if(Immutable.is(record, originalRecord)) {
+      return;
+    }
+
+    if(this.sync) {
+      this.sync.update(record, this.__edit.bind(this));
     } else {
-      // in case entity has not been perissted before
-      throw new Error("Cannot update non synced entity.")
+      this.__edit(record);
     }
   }
 
   delete({record}) {
-    let cid = record.get("__cid");
-    let id = record.get("id")
-    if(cid && id) {
-      this.__collection = this.__collection.remove(cid);
-      this.__dict = this.__dict.remove(id);
-    }
-    else
+    if(record.get("__cid") && record.get("id")) {
+      if(this.sync) {
+        this.sync.update(record, this.__remove.bind(this));
+      } else {
+        this.__remove(record);
+      }
+    } else {
       throw new Error("Cannot remove this record from collection, no __cid or id");
+    }
   }
 
   /*******************************/
