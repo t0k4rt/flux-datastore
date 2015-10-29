@@ -1,5 +1,6 @@
 /* @flow */
 "use strict;"
+
 import Immutable from 'immutable';
 import _dispatcher from "../Dispatcher";
 

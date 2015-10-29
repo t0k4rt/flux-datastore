@@ -1,5 +1,6 @@
 /* @flow */
 "use strict;"
+
 import Immutable from "immutable";
 import { EventEmitter } from "events";
 import __dispatcher from "./Dispatcher";

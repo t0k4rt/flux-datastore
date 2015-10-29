@@ -1,12 +1,13 @@
 "use strict;"
-import Datastore from "./SimpleStore";
-import Constants from "./Constants";
-import Actions from "./Actions";
-import dispatcher from "./Dispatcher";
 import Immutable from "immutable";
-import Record from "./Record";
 
-import XMLHttpRequestPromise from 'xhr-promise';
+//import Constants from '../src/Constants';
+//import Record from '../src/Record';
+//import SimpleStore from '../src/SimpleStore';
+
+
+import { Constants } from "../dist/datastore";
+
 
 //QUnit = window.Qunit;
 //
@@ -57,7 +58,7 @@ QUnit.test("Test parse collections", function( assert ) {
     };
   let k = new Constants(namespace, actions);
   let tr = Record({id: null, a:1, b:2});
-  let ts = new Datastore(tr, k);
+  let ts = new SimpleStore(tr, k);
 
 
   let dataCollection = [
@@ -66,7 +67,7 @@ QUnit.test("Test parse collections", function( assert ) {
     {id: 3, a:"ccc", b:"ddd"},
     {id: 4, a:"abc", b:"bcd"}
   ];
-  ts.parseCollection(dataCollection);
+  ts.__parseCollection(dataCollection);
   assert.equal(ts.getAll().count(),4, "collection should count 4 elts");
 
 });
@@ -85,7 +86,7 @@ QUnit.test("Test CRUD", function( assert ) {
     };
   let k = new Constants(namespace, actions);
   let tr = Record({id: null, a:1, b:2});
-  let ts = new Datastore(tr, k);
+  let ts = new SimpleStore(tr, k);
 
   let r1 = new tr({id: 1, a:"aaa", b:"bbb"});
   let r2 = new tr({id: 2, a:"bbb", b:"ccc"});
@@ -99,6 +100,12 @@ QUnit.test("Test CRUD", function( assert ) {
   ts.create({record: r2});
   ts.create({record: r3});
   ts.create({record: r4});
+
+  console.log("col", ts.getAll().toJS());
+  console.log("col", ts.__dict.toJS());
+  console.log("record created", ts.get(1).toJS());
+
+
 
   assert.equal(ts.getAll().count(),4, "Collection should have 4 elt");
   assert.ok(ts.get(1).get("__cid"), "elements should have a __cid set");
@@ -129,7 +136,7 @@ QUnit.test("Test filter collections", function( assert ) {
     };
   let k = new Constants(namespace, actions);
   let tr = Record({id: null, a:1, b:2});
-  let ts = new Datastore(tr, k);
+  let ts = new SimpleStore(tr, k);
   ts.triggerSearchAt = 0;
 
 
@@ -139,7 +146,7 @@ QUnit.test("Test filter collections", function( assert ) {
     {id: 3, a:"ccc", b:"ddd"},
     {id: 4, a:"abc", b:"bcd"},
   ];
-  ts.parseCollection(dataCollection);
+  ts.__parseCollection(dataCollection);
   ts.filter({criterion: "b", keys: ["a"]})
   assert.equal(ts.getFiltered().count(),2, "filtered collection should count 2 elts");
   ts.filter({criterion: "b", keys: ["a", "b"]})
@@ -168,7 +175,7 @@ QUnit.test("Test sort collections", function( assert ) {
     };
   let k = new Constants(namespace, actions);
   let tr = Record({id: null, a:1, b:2});
-  let ts = new Datastore(tr, k);
+  let ts = new SimpleStore(tr, k);
   ts.triggerSearchAt = 0;
 
 
@@ -178,7 +185,7 @@ QUnit.test("Test sort collections", function( assert ) {
     {id: 3, a:"ccc", b:"ddd"},
     {id: 4, a:"abc", b:"bcd"},
   ];
-  ts.parseCollection(dataCollection);
+  ts.__parseCollection(dataCollection);
   ts.sort({});
   assert.equal(ts.getAll().first().get("id"),1, "first item of sorted collection should be 1");
   assert.equal(ts.getAll().last().get("id"),4, "last item of sorted collection should be 4");
@@ -191,11 +198,6 @@ QUnit.test("Test sort collections", function( assert ) {
   assert.equal(ts.getAll().first().get("id"),1, "first item of sorted collection should be 1");
   assert.equal(ts.getAll().last().get("id"),3, "last item of sorted collection should be 3");
 });
-
-
-
-
-
 
 
 

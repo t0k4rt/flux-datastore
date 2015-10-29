@@ -1,5 +1,5 @@
 import { Ajax } from "jquery";
-import ErrorAction from "./ErrorAction"
+import ErrorAction from "./Error/ErrorActions"
 
 class Sync {
 

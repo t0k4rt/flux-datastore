@@ -1,17 +1,17 @@
 {
-  "name": "bob-front",
+  "name": "datastore",
   "version": "0.0.1",
   "description": "store test",
-  "main": "app.js",
+  "main": "dist/datastore.js",
   "dependencies": {
     "flux": "^2.1.1",
+    "jquery": "~2.1.4",
     "immutable": "^3.7.4",
     "react": "^0.13.0",
-    "moment": "~2.10.1",
-    "xhr-promise": "~1.2.0"
+    "moment": "~2.10.1"
   },
   "devDependencies": {
-    "jquery": "~2.1.4",
+
     "babelify": "^6.3.0",
     "browserify": "^6.2.0",
     "envify": "^3.4.0",
@@ -22,8 +22,10 @@
   },
   "scripts": {
     "start": "watchify tests.js -o bundle-tests.js -v -d --poll",
-    "test": "browserify tests.js > bundle-tests.js"
+    "test": "browserify __tests__/tests.js > __tests__/bundle-tests.js",
+    "build": "browserify src/DataStore.js > dist/datastore.js"
   },
+
   "author": "Ken Wheeler",
   "browserify": {
     "transform": [
