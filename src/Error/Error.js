@@ -1,3 +1,5 @@
+"use strict";
+
 import ErrorActions from './ErrorActions';
 import ErrorStore from './ErrorStore';
 import Constants from '../Constants';
@@ -9,12 +11,7 @@ let errorConstants= new Constants("error", {
   clear: "clear"
 });
 
-let actions = new ErrorActions(errorConstants);
-
 let ErrorRecord = new Immutable.Record({message: null, ttl: 2000});
 
-let store = new ErrorStore(ErrorRecord, errorConstants);
-
-
-export store;
-export actions;
+export const store = new ErrorStore(ErrorRecord, errorConstants);
+export const actions = new ErrorActions(errorConstants);

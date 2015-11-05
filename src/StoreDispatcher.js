@@ -1,3 +1,5 @@
+"use strict";
+
 import { Dispatcher } from "flux";
 let StoreDispatcher = new Dispatcher();
-exports default StoreDispatcher;
+export default StoreDispatcher;

@@ -1,3 +1,5 @@
+"use strict";
+
 import Immutable from "immutable";
 
 Immutable.Record.constructor.prototype.fromJS = function(values) {

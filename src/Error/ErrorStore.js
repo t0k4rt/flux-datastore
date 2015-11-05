@@ -1,9 +1,7 @@
-/* @flow */
-"use strict;"
+"use strict";
 
 import Immutable from "immutable";
 import { EventEmitter } from "events";
-import __dispatcher from "./Dispatcher";
 
 let _defaultEvents = {
   change:   'change'
@@ -27,7 +25,7 @@ let _defaultSortFunction = function(a, b) {
 
 class ErrorStore extends EventEmitter {
 
-  constructor(record, constants) {
+  constructor(record, constants, __dispatcher) {
     super();
     this.constants = constants;
     this.record = record;
@@ -110,19 +108,17 @@ class ErrorStore extends EventEmitter {
   /** action proxy handler **/
   /**************************/
   payloadHandler(payload) {
-      // get fn name from payload type
-      let fn = this.constants.__dict.get(payload.type);
+    // get fn name from payload type
+    let fn = this.constants.__dict.get(payload.type);
 
-      // check if fn exists for current class
-      if(fn && Reflect.has(this,fn)) {
-        fn = Reflect.get(this,fn);
-        Reflect.apply(fn, this, [payload]);
-      } else {
-        console.error('no function found to handle ' + fn);
-      }
+    // check if fn exists for current class
+    if(fn && Reflect.has(this,fn)) {
+      fn = Reflect.get(this,fn);
+      Reflect.apply(fn, this, [payload]);
+    } else {
+      console.error('no function found to handle ' + fn);
     }
   }
-
 }
 
 export default ErrorStore

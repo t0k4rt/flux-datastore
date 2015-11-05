@@ -1,5 +1,6 @@
+"use strict";
 import { Ajax } from "jquery";
-import ErrorAction from "./Error/ErrorActions"
+//import ErrorAction from "./Error/ErrorActions"
 
 class Sync {
 
@@ -76,7 +77,7 @@ class Sync {
   }
 
   __syncError(xhr, status, err) {
-    let errorMessage = JSON.parse(xhr.responseText);
-    ErrorAction.add(new Error(errorMessage.message, status));
+    //let errorMessage = JSON.parse(xhr.responseText);
+    //ErrorAction.add(new Error(errorMessage.message, status));
   }
 }

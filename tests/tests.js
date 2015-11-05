@@ -1,16 +1,19 @@
 "use strict;"
 import Immutable from "immutable";
+import { Dispatcher } from "flux";
+
 
 //import Constants from '../src/Constants';
 //import Record from '../src/Record';
 //import SimpleStore from '../src/SimpleStore';
 
 
-import Datastore from "../dist/datastore";
+import Datastore from "../lib/datastore";
 
 let Record = Datastore.Record;
 let Constants = Datastore.Constants;
 let SimpleStore = Datastore.SimpleStore;
+let testDispatcher = new Dispatcher();
 //QUnit = window.Qunit;
 //
 // QUnit.begin(function( details ) {
@@ -60,7 +63,7 @@ QUnit.test("Test parse collections", function( assert ) {
     };
   let k = new Constants(namespace, actions);
   let tr = Record({id: null, a:1, b:2});
-  let ts = new SimpleStore(tr, k);
+  let ts = new SimpleStore(tr, k, testDispatcher);
 
 
   let dataCollection = [
@@ -88,7 +91,7 @@ QUnit.test("Test CRUD", function( assert ) {
     };
   let k = new Constants(namespace, actions);
   let tr = Record({id: null, a:1, b:2});
-  let ts = new SimpleStore(tr, k);
+  let ts = new SimpleStore(tr, k, testDispatcher);
 
   let r1 = new tr({id: 1, a:"aaa", b:"bbb"});
   let r2 = new tr({id: 2, a:"bbb", b:"ccc"});
@@ -138,7 +141,7 @@ QUnit.test("Test filter collections", function( assert ) {
     };
   let k = new Constants(namespace, actions);
   let tr = Record({id: null, a:1, b:2});
-  let ts = new SimpleStore(tr, k);
+  let ts = new SimpleStore(tr, k, testDispatcher);
   ts.triggerSearchAt = 0;
 
 
@@ -177,7 +180,7 @@ QUnit.test("Test sort collections", function( assert ) {
     };
   let k = new Constants(namespace, actions);
   let tr = Record({id: null, a:1, b:2});
-  let ts = new SimpleStore(tr, k);
+  let ts = new SimpleStore(tr, k, testDispatcher);
   ts.triggerSearchAt = 0;
 
 

@@ -1,9 +1,7 @@
-/* @flow */
-"use strict;"
+"use strict";
 
 import Immutable from "immutable";
 import { EventEmitter } from "events";
-import StoreDispatcher from "./StoreDispatcher";
 
 let _defaultEvents = {
   load:     'load',
@@ -42,7 +40,7 @@ let _defaultFilterFunction = function(value, key) {
 
 class SimpleStore extends EventEmitter {
 
-  constructor(record, constants, sync) {
+  constructor(record, constants, __dispatcher, sync) {
     super();
     this.constants = constants;
     this.record = record;
@@ -68,7 +66,7 @@ class SimpleStore extends EventEmitter {
     this.__counter = 0;
     this.__collection = Immutable.Map();
     this.__filteredCollection;
-    this.__dispatcher = StoreDispatcher;
+    this.__dispatcher = __dispatcher;
     this.__dispatcher.register(this.payloadHandler.bind(this));
     this.__dict = Immutable.Map();
     this.__sync = sync;
@@ -89,11 +87,11 @@ class SimpleStore extends EventEmitter {
     }
   }
 
-  __parseModel(data :Object) {
+  __parseModel(data) {
     return this.record.fromJS(data);
   }
 
-  __parseCollection(data :Array<Object>) {
+  __parseCollection(data) {
     data.forEach((elt, index) => {
       let record = this.__parseModel(elt);
       this.__add(record);
@@ -286,11 +284,11 @@ class SimpleStore extends EventEmitter {
   /**********************/
   /** listener section **/
   /**********************/
-  listenTo(eventName :string, callback) {
+  listenTo(eventName, callback) {
     this.on(eventName, callback);
   }
 
-  stopListeningTo(eventName :string, callback) {
+  stopListeningTo(eventName, callback) {
     this.removeListener(eventName, callback);
   }
 

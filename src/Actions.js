@@ -1,11 +1,7 @@
-/* @flow */
-"use strict;"
-
-import Immutable from 'immutable';
-import _dispatcher from "./Dispatcher";
+"use strict";
 
 class Actions {
-  constructor(_constants) {
+  constructor(_constants, _dispatcher) {
     this.constants = _constants;
     this.dispatcher = _dispatcher;
   }
