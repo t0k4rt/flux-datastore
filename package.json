@@ -21,6 +21,7 @@
   },
   "scripts": {
     "start": "watchify tests/tests.js -o tests/bundle-tests.js -v -d --poll",
+    "build": "babel -d lib src",
     "build-test": "browserify tests/tests.js > tests/bundle-tests.js"
   },
   "author": "Ken Wheeler",
