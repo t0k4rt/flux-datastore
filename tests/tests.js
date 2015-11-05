@@ -6,9 +6,11 @@ import Immutable from "immutable";
 //import SimpleStore from '../src/SimpleStore';
 
 
-import { Constants } from "../dist/datastore";
+import Datastore from "../dist/datastore";
 
-
+let Record = Datastore.Record;
+let Constants = Datastore.Constants;
+let SimpleStore = Datastore.SimpleStore;
 //QUnit = window.Qunit;
 //
 // QUnit.begin(function( details ) {

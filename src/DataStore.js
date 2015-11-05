@@ -1,19 +1,15 @@
 "use strict;"
 
-import Dispatcher from './Dispatcher'
+import StoreDispatcher from './StoreDispatcher'
 import Actions from './Actions'
 import Constants from './Constants'
 import Record from './Record'
 import SimpleStore from './SimpleStore'
-import Sync from './Sync'
 
 export default {
-
   Actions: Actions,
   Constants: Constants,
-  Dispatcher: Dispatcher,
+  StoreDispatcher: StoreDispatcher,
   Record: Record,
   SimpleStore: SimpleStore,
-  Sync: Sync
-
 };

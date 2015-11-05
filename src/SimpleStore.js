@@ -3,7 +3,7 @@
 
 import Immutable from "immutable";
 import { EventEmitter } from "events";
-import __dispatcher from "./Dispatcher";
+import StoreDispatcher from "./StoreDispatcher";
 
 let _defaultEvents = {
   load:     'load',
@@ -68,7 +68,7 @@ class SimpleStore extends EventEmitter {
     this.__counter = 0;
     this.__collection = Immutable.Map();
     this.__filteredCollection;
-    this.__dispatcher = __dispatcher;
+    this.__dispatcher = StoreDispatcher;
     this.__dispatcher.register(this.payloadHandler.bind(this));
     this.__dict = Immutable.Map();
     this.__sync = sync;

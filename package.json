@@ -21,8 +21,9 @@
     "watchify": "^3.2.2"
   },
   "scripts": {
-    "start": "watchify tests.js -o bundle-tests.js -v -d --poll",
-    "test": "browserify __tests__/tests.js > __tests__/bundle-tests.js",
+    "start": "watchify tests/tests.js -o tests/bundle-tests.js -v -d --poll",
+    "test2": "browserify tests/tests.js > tests/bundle-tests.js",
+    "test": "browserify . > bundle-tests.js",
     "build": "browserify src/DataStore.js > dist/datastore.js"
   },
 
