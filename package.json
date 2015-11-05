@@ -1,7 +1,7 @@
 {
-  "name": "datastore",
+  "name": "flux-datastore",
   "version": "0.0.1",
-  "description": "store test",
+  "description": "flux datastore test",
   "main": "lib/Datastore.js",
   "dependencies": {
     "flux": "^2.1.1",
@@ -24,7 +24,7 @@
     "build": "babel -d lib src",
     "build-test": "browserify tests/tests.js > tests/bundle-tests.js"
   },
-  "author": "Ken Wheeler",
+  "author": ["Alexandre Assouad", "Matthieu Faule"],
   "browserify": {
     "transform": [
       "babelify",
