@@ -3,12 +3,10 @@
   "version": "0.0.1",
   "description": "flux datastore test",
   "main": "lib/Datastore.js",
-  "dependencies": {
+  "peerDependencies": {
     "flux": "^2.1.1",
     "jquery": "~2.1.4",
-    "immutable": "^3.7.4",
-    "react": "^0.13.0",
-    "moment": "~2.10.1"
+    "immutable": "~3.7.4"
   },
   "devDependencies": {
     "browserify": "~12.0",
