@@ -120,6 +120,11 @@ class SimpleStore extends EventEmitter {
         r=r.set("__cid", "c"+this.__counter);
         // Set map with __cid and record
         this.__collection = this.__collection.set(r.get("__cid"), r);
+
+        // when there is no sync, there is no id
+        if(!this.sync) {
+          r = r.set("id", r.get("__cid"));
+        }
         // add item to dict to be able to find it from id
         this.__addToDict(r);
 
