@@ -148,14 +148,12 @@ class SimpleStore extends EventEmitter {
   }
 
   __addToDict(r) {
-    // force id to string
-    let id = r.get("id").toString();
-
     // check if id is set
-    if(!id) {
+    if(!r.has("id")) {
       throw new Error("Cannot index record without id.");
     }
-
+    // force id to string
+    let id = r.get("id").toString();
     // check if record has not already been indexed
     if(this.__dict.has(id)) {
       console.warn("Record has been already indexed.", id);
