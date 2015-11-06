@@ -139,7 +139,8 @@ class SimpleStore extends EventEmitter {
 
   __remove(r) {
     let cid = r.get("__cid");
-    let id = r.get("id");
+    // force id to string
+    let id = (r.get("id")).toString();
     this.__collection = this.__collection.remove(cid);
     this.__dict = this.__dict.remove(id);
     this.emit(this.events.success);
@@ -147,7 +148,8 @@ class SimpleStore extends EventEmitter {
   }
 
   __addToDict(r) {
-    let id = r.get("id");
+    // force id to string
+    let id = r.get("id").toString();
 
     // check if id is set
     if(!id) {
@@ -173,6 +175,8 @@ class SimpleStore extends EventEmitter {
 
   get(id) {
     if(id) {
+      // force id to string
+      id = id.toString();
       let cid = this.__dict.get(id);
       if(cid) {
         return this.__getByCid(cid);

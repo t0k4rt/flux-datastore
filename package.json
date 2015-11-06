@@ -2,7 +2,7 @@
   "name": "flux-datastore",
   "version": "0.0.1",
   "description": "flux datastore test",
-  "main": "lib/Datastore.js",
+  "main": "lib/DataStore.js",
   "peerDependencies": {
     "flux": "^2.1.1",
     "jquery": "~2.1.4",
