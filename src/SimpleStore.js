@@ -88,8 +88,8 @@ class SimpleStore extends EventEmitter {
   /********************/
   init() {
     if(!this.__loaded) {
-      if(this.sync) {
-        this.sync.fetchAll(this.__loadData.bind(this));
+      if(this.__sync) {
+        this.__sync.fetchAll(this.__loadData.bind(this));
       } else {
         this.__initialized = true;
       }
@@ -221,8 +221,8 @@ class SimpleStore extends EventEmitter {
 
   // todo : when dealing with record, we should check that it is an instance of Record
   create({record}) {
-    if(this.sync) {
-      this.sync.create(record, this.__add.bind(this));
+    if(this.__sync) {
+      this.__sync.create(record, this.__add.bind(this));
     } else {
       this.__add(record);
     }
@@ -240,8 +240,8 @@ class SimpleStore extends EventEmitter {
       return;
     }
 
-    if(this.sync) {
-      this.sync.update(record, this.__edit.bind(this));
+    if(this.__sync) {
+      this.__sync.update(record, this.__edit.bind(this));
     } else {
       this.__edit(record);
     }
@@ -249,8 +249,8 @@ class SimpleStore extends EventEmitter {
 
   delete({record}) {
     if(record.get("__cid") && record.get("id")) {
-      if(this.sync) {
-        this.sync.update(record, this.__remove.bind(this));
+      if(this.__sync) {
+        this.__sync.update(record, this.__remove.bind(this));
       } else {
         this.__remove(record);
       }

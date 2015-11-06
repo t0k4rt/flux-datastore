@@ -6,7 +6,8 @@
   "peerDependencies": {
     "flux": "^2.1.1",
     "jquery": "~2.1.4",
-    "immutable": "~3.7.4"
+    "immutable": "~3.7.4",
+    "http-client-js": "git+https://git@github.com/Matthiew/http-client-js.git#master"
   },
   "devDependencies": {
     "babel-preset-es2015": "~6.1",

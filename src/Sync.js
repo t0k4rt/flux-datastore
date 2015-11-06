@@ -1,5 +1,7 @@
 "use strict";
-import { Ajax } from "jquery";
+
+import $ from "jquery";
+import REST from "http-client-js";
 //import ErrorAction from "./Error/ErrorActions"
 
 class Sync {
@@ -9,15 +11,29 @@ class Sync {
   }
 
   fetchAll(success) {
-    return $.ajax({
-      url: this.baseUrl,
-      dataType: 'json',
-      method: 'GET',
-      cache: false
-    }).fail(this.__syncError)
-    .done(function(data) {
-      success(data);
-    });
+    return REST.get(
+      this.baseUrl,
+      { 'Content-Type': 'application/json; charset=UTF-8' },
+      {},
+      function(err, response) {
+        if(err) {
+          this.__syncError(err);
+        }
+        else {
+          success(response);
+        }
+      }
+    );
+
+    //return $.ajax({
+    //  url: this.baseUrl,
+    //  dataType: 'json',
+    //  method: 'GET',
+    //  cache: false
+    //}).fail(this.__syncError)
+    //.done(function(data) {
+    //  success(data);
+    //});
   }
 
   fetch(id, success) {
@@ -76,8 +92,10 @@ class Sync {
     });
   }
 
-  __syncError(xhr, status, err) {
+  __syncError(err) {
     //let errorMessage = JSON.parse(xhr.responseText);
     //ErrorAction.add(new Error(errorMessage.message, status));
   }
 }
+
+export default Sync
