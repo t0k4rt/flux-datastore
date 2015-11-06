@@ -3,11 +3,13 @@
   "version": "0.0.1",
   "description": "flux datastore test",
   "main": "lib/DataStore.js",
+  "dependencies": {
+    "http-client-js": "git+https://git@github.com/Matthiew/http-client-js.git#master"
+  },
   "peerDependencies": {
     "flux": "^2.1.1",
     "jquery": "~2.1.4",
-    "immutable": "~3.7.4",
-    "http-client-js": "git+https://git@github.com/Matthiew/http-client-js.git#master"
+    "immutable": "~3.7.4"
   },
   "devDependencies": {
     "babel-preset-es2015": "~6.1",
