@@ -8,12 +8,13 @@ import { Dispatcher } from "flux";
 //import SimpleStore from '../src/SimpleStore';
 
 
-import Datastore from "../lib/datastore";
+import DataStore, {Record, Constants, SimpleStore, Actions, StoreDispatcher as testDispatcher} from "../src/DataStore";
 
-let Record = Datastore.Record;
-let Constants = Datastore.Constants;
-let SimpleStore = Datastore.SimpleStore;
-let testDispatcher = new Dispatcher();
+console.log(DataStore);
+// let Record = Datastore.Record;
+// let Constants = Datastore.Constants;
+// let SimpleStore = Datastore.SimpleStore;
+// let testDispatcher = new Dispatcher();
 //QUnit = window.Qunit;
 //
 // QUnit.begin(function( details ) {

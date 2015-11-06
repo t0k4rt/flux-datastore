@@ -6,6 +6,8 @@ import Record from './Record';
 import SimpleStore from './SimpleStore';
 import StoreDispatcher from './StoreDispatcher';
 
+export { Actions, Constants, SimpleStore, Record, StoreDispatcher };
+
 export default {
   Actions: Actions,
   Constants: Constants,
