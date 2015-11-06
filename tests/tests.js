@@ -2,29 +2,9 @@
 import Immutable from "immutable";
 import { Dispatcher } from "flux";
 
+import DataStore, {Record, Constants, SimpleStore, Actions} from "../src/DataStore";
 
-//import Constants from '../src/Constants';
-//import Record from '../src/Record';
-//import SimpleStore from '../src/SimpleStore';
-
-
-import DataStore, {Record, Constants, SimpleStore, Actions, StoreDispatcher as testDispatcher} from "../src/DataStore";
-
-console.log(DataStore);
-// let Record = Datastore.Record;
-// let Constants = Datastore.Constants;
-// let SimpleStore = Datastore.SimpleStore;
-// let testDispatcher = new Dispatcher();
-//QUnit = window.Qunit;
-//
-// QUnit.begin(function( details ) {
-//   console.log( "Test amount:", details.totalTests, details );
-// });
-
-// QUnit.testStart(function( details ) {
-//   let a = "a";
-//   console.log( "Now running: ", details);
-// });
+let testDispatcher = new Dispatcher();
 
 QUnit.test("Test constant actions", function( assert ) {
   let namespace = "k";

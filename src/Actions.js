@@ -8,6 +8,7 @@ class Actions {
 
   create(_record) {
     this.dispatcher.dispatch({
+      namespace: this.constants.namespace,
       type: this.constants.actions.create,
       record: _record
     })
@@ -15,6 +16,7 @@ class Actions {
 
   update(_record) {
     this.dispatcher.dispatch({
+      namespace: this.constants.namespace,
       type: this.constants.actions.update,
       record: _record
     })
@@ -22,6 +24,7 @@ class Actions {
 
   delete(_record) {
     this.dispatcher.dispatch({
+      namespace: this.constants.namespace,
       type: this.constants.actions.delete,
       record: _record
     })
@@ -29,6 +32,7 @@ class Actions {
 
   filter(_criterion, _keys) {
     this.dispatcher.dispatch({
+      namespace: this.constants.namespace,
       type: this.constants.actions.filter,
       criterion: _criterion,
       keys: _keys
@@ -37,12 +41,14 @@ class Actions {
 
   resetFilter() {
     this.dispatcher.dispatch({
+      namespace: this.constants.namespace,
       type: this.constants.actions.resetFilter,
     })
   }
 
   sort(_keys) {
     this.dispatcher.dispatch({
+      namespace: this.constants.namespace,
       type: this.constants.actions.sort,
       keys: _keys
     })
@@ -50,12 +56,14 @@ class Actions {
 
   resetSort() {
     this.dispatcher.dispatch({
+      namespace: this.constants.namespace,
       type: this.constants.actions.resetSort,
     })
   }
 
   reverse() {
     this.dispatcher.dispatch({
+      namespace: this.constants.namespace,
       type: this.constants.actions.reverse,
     })
   }

@@ -308,9 +308,11 @@ class SimpleStore extends EventEmitter {
   /** action proxy handler **/
   /**************************/
   payloadHandler(payload) {
+    if(payload.namespace != this.constants.namespace) {
+      return;
+    }
     // get fn name from payload type
     let fn = this.constants.__dict.get(payload.type);
-
     // check if fn exists for current class
     if(fn && Reflect.has(this,fn)) {
       fn = Reflect.get(this,fn);
