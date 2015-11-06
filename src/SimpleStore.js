@@ -38,6 +38,15 @@ let _defaultFilterFunction = function(value, key) {
   return result;
 };
 
+let guid = function() {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  }
+  return s4() + s4();
+}
+
 class SimpleStore extends EventEmitter {
 
   constructor(record, constants, __dispatcher, sync) {
@@ -123,7 +132,7 @@ class SimpleStore extends EventEmitter {
 
         // when there is no sync, there is no id
         if(!this.sync) {
-          r = r.set("id", r.get("__cid"));
+          r = r.set("id", guid());
         }
         // add item to dict to be able to find it from id
         this.__addToDict(r);
