@@ -269,12 +269,13 @@ class SimpleStore extends EventEmitter {
     let filtering = false;
 
     if(this.filterStr.length > this.triggerSearchAt) {
-      this.__refreshFilteredCollection();
+      this.__filteredCollection = this.__collection.filter(this.filterFunction.bind(this));
       this.emit(this.events.filter);
       filtering = true;
     } else if(filtering && this.filterStr.length+1 > this.triggerSearchAt){
       this.__filteredCollection = this.collection;
       this.emit(this.events.filter);
+      filtering = false;
     }
   }
 
