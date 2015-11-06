@@ -130,7 +130,7 @@ class SimpleStore extends EventEmitter {
         // Set map with __cid and record
         this.__collection = this.__collection.set(r.get("__cid"), r);
 
-        // when there is no sync, there is no id
+        // when there is no sync, there is no id so we forge one
         if(!this.sync) {
           r = r.set("id", guid());
         }
@@ -163,7 +163,7 @@ class SimpleStore extends EventEmitter {
 
   __addToDict(r) {
     // check if id is set
-    if(!r.has("id")) {
+    if(!r.has("id") || !r.get("id")) {
       throw new Error("Cannot index record without id.");
     }
     // force id to string
