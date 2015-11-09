@@ -75,6 +75,7 @@ class SimpleStore extends EventEmitter {
     this.__counter = 0;
     this.__collection = Immutable.Map();
     this.__filteredCollection;
+    this.__filtering = false;
     this.__dispatcher = __dispatcher;
     this.__dispatcher.register(this.payloadHandler.bind(this));
     this.__dict = Immutable.Map();
@@ -207,11 +208,12 @@ class SimpleStore extends EventEmitter {
   }
 
   getFiltered() {
-    if(this.__filteredCollection instanceof Immutable.Map) {
-      let sortedCollection = this.__filteredCollection.sort(this.sortFunction.bind(this));
+    if(this.__filtering) {
+      let sortedCollection = this.__collection.filter(this.filterFunction.bind(this)).sort(this.sortFunction.bind(this));
       return this.__reverse ? sortedCollection.reverse() : sortedCollection;
     } else {
-      return undefined;
+      let sortedCollection = this.__collection.sort(this.sortFunction.bind(this));
+      return this.__reverse ? sortedCollection.reverse() : sortedCollection;
     }
   }
 
@@ -267,18 +269,17 @@ class SimpleStore extends EventEmitter {
     this.filterKeys = keys;
 
     if(this.filterStr.length > this.triggerSearchAt) {
-      this.__refreshFilteredCollection();
       this.emit(this.events.filter);
+      this.__filtering = true;
+    } else if(this.__filtering === true) {
+      this.resetFilter();
     }
   }
 
   resetFilter() {
     this.criterion = undefined;
-    this.__filteredCollection = undefined;
-  }
-
-  __refreshFilteredCollection() {
-    this.__filteredCollection = this.__collection.filter(this.filterFunction.bind(this));
+    this.__filtering = false;
+    this.emit(this.events.filter);
   }
 
   /*****************************/
