@@ -11,7 +11,7 @@ class Actions {
       namespace: this.constants.namespace,
       type: this.constants.actions.create,
       record: _record,
-        parents: _parents||[]
+      parents: _parents||[]
     })
   }
 
@@ -20,7 +20,7 @@ class Actions {
       namespace: this.constants.namespace,
       type: this.constants.actions.update,
       record: _record,
-        parents: _parents||[]
+      parents: _parents||[]
     })
   }
 
@@ -29,7 +29,7 @@ class Actions {
       namespace: this.constants.namespace,
       type: this.constants.actions.delete,
       record: _record,
-        parents: _parents||[]
+      parents: _parents||[]
     })
   }
 

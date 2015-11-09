@@ -222,15 +222,15 @@ class SimpleStore extends EventEmitter {
   /**********************/
 
   // todo : when dealing with record, we should check that it is an instance of Record
-  create({record}) {
+  create({record, parents}) {
     if(this.__sync) {
-      this.__sync.create(record, this.__add.bind(this));
+      this.__sync.create(record, parents, this.__add.bind(this));
     } else {
       this.__add(record);
     }
   }
 
-  update({record}) {
+  update({record, parents}) {
     // can update ?
     if(!record.get("id")) {
       throw new Error("Cannot update non synced entity.");
@@ -243,16 +243,16 @@ class SimpleStore extends EventEmitter {
     }
 
     if(this.__sync) {
-      this.__sync.update(record, this.__edit.bind(this));
+      this.__sync.update(record, parents, this.__edit.bind(this));
     } else {
       this.__edit(record);
     }
   }
 
-  delete({record}) {
+  delete({record, parents}) {
     if(record.get("__cid") && record.get("id")) {
       if(this.__sync) {
-        this.__sync.update(record, this.__remove.bind(this));
+        this.__sync.update(record, parents, this.__remove.bind(this));
       } else {
         this.__remove(record);
       }
