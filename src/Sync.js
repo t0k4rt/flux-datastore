@@ -1,17 +1,37 @@
 "use strict";
 
-import $ from "jquery";
+import baseJQuery from "jquery";
+import assign from "object-assign";
 //import ErrorAction from "./Error/ErrorActions"
 
 class Sync {
 
-  constructor(baseUrl) {
-    this.baseUrl = baseUrl
+  constructor(jquery, baseUrl, options) {
+    this.__baseUrl = baseUrl;
+    this.__jquery = (jquery) ? jquery : baseJQuery;
+    this.__context = {};
+
+    this.__routes = {
+      'fetchAll': '',
+      'fetch': '/${id}',
+      'create': '',
+      'update': '/${id}',
+      'delete': '/${id}'
+    };
+
+    if(options.routes) {
+      this.__routes = assign(this.__routes, options.routes);
+    }
+  }
+
+  addContext(_context) {
+    this.__context = _context;
+    return this;
   }
 
   fetchAll(success) {
-    return $.ajax({
-      url: this.baseUrl,
+    return this.__jquery.ajax({
+      url: this.__generateUrl('fetchAll'),
       dataType: 'json',
       method: 'GET',
       cache: false
@@ -23,7 +43,7 @@ class Sync {
 
   fetch(id, success) {
     return $.ajax({
-      url: this.baseUrl+"/"+id,
+      url: this.__generateUrl('fetch', { id: id }),
       dataType: 'json',
       method: 'GET',
       cache: false
@@ -34,8 +54,8 @@ class Sync {
   }
 
   create(record, success) {
-    return $.ajax({
-      url: this.baseUrl,
+    return this.__jquery.ajax({
+      url: this.__generateUrl('create'),
       dataType: 'json',
       method: 'POST',
       data: record
@@ -55,8 +75,8 @@ class Sync {
   }
 
   update(record, success){
-    return $.ajax({
-      url: this.baseUrl+"/"+record.get("id"),
+    return this.__jquery.ajax({
+      url: this.__generateUrl('update', { record: record }),
       dataType: 'json',
       method: 'PUT',
       data: record
@@ -67,8 +87,8 @@ class Sync {
   }
 
   delete(record, success) {
-    return $.ajax({
-      url: this.baseUrl+"/"+record.get("id"),
+    return this.__jquery.ajax({
+      url: this.__generateUrl('delete', { record: record }),
       dataType: 'json',
       method: 'DELETE'
     }).fail(this.__syncError)
@@ -80,6 +100,21 @@ class Sync {
   __syncError(err) {
     //let errorMessage = JSON.parse(xhr.responseText);
     //ErrorAction.add(new Error(errorMessage.message, status));
+  }
+
+  __generateUrl(method, params) {
+
+    let context = this.__context;
+
+    if(params.id) {
+      let id = params.id;
+    }
+
+    if(params.record) {
+      let id = record.get("id");
+    }
+
+    return this.baseUrl + this.__routes[method];
   }
 }
 
