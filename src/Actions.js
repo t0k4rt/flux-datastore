@@ -6,27 +6,30 @@ class Actions {
     this.dispatcher = _dispatcher;
   }
 
-  create(_record) {
+  create(_record, _parents) {
     this.dispatcher.dispatch({
       namespace: this.constants.namespace,
       type: this.constants.actions.create,
-      record: _record
+      record: _record,
+        parents: _parents||[]
     })
   }
 
-  update(_record) {
+  update(_record, _parents) {
     this.dispatcher.dispatch({
       namespace: this.constants.namespace,
       type: this.constants.actions.update,
-      record: _record
+      record: _record,
+        parents: _parents||[]
     })
   }
 
-  delete(_record) {
+  delete(_record, _parents) {
     this.dispatcher.dispatch({
       namespace: this.constants.namespace,
       type: this.constants.actions.delete,
-      record: _record
+      record: _record,
+        parents: _parents||[]
     })
   }
 
