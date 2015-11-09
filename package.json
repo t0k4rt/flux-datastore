@@ -4,11 +4,10 @@
   "description": "flux datastore test",
   "main": "lib/DataStore.js",
   "dependencies": {
-    "http-client-js": "git+https://git@github.com/Matthiew/http-client-js.git#master"
+    "jquery": "git+https://github.com/kairosagency/jquery.git#ajax"
   },
   "peerDependencies": {
     "flux": "^2.1.1",
-    "jquery": "~2.1.4",
     "immutable": "~3.7.4"
   },
   "devDependencies": {
