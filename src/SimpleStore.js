@@ -4,10 +4,10 @@ import Immutable from "immutable";
 import { EventEmitter } from "events";
 
 let _defaultEvents = {
-  load:     'load',
   change:   'change',
   success:  'success',
   filter:   'filter',
+  sort:     'sort',
   error:    'error'
 };
 
@@ -55,7 +55,8 @@ class SimpleStore extends EventEmitter {
     this.record = record;
     this.triggerSearchAt = 3;
     this.idMap = "id";
-    //todo
+
+    //todo: implement dirty records
     this.optimisticUpdate = false;
 
     // filter
@@ -87,7 +88,7 @@ class SimpleStore extends EventEmitter {
   /********************/
   /**  Init scripts  **/
   /********************/
-  init() {
+  init({context}) {
     if(!this.__loaded) {
       if(this.__sync) {
         this.__sync.fetchAll(this.__loadData.bind(this));
@@ -222,15 +223,15 @@ class SimpleStore extends EventEmitter {
   /**********************/
 
   // todo : when dealing with record, we should check that it is an instance of Record
-  create({record, parents}) {
+  create({record, context}) {
     if(this.__sync) {
-      this.__sync.create(record, parents, this.__add.bind(this));
+      this.__sync.create(record, context, this.__add.bind(this));
     } else {
       this.__add(record);
     }
   }
 
-  update({record, parents}) {
+  update({record, context}) {
     // can update ?
     if(!record.get("id")) {
       throw new Error("Cannot update non synced entity.");
@@ -243,16 +244,18 @@ class SimpleStore extends EventEmitter {
     }
 
     if(this.__sync) {
-      this.__sync.update(record, parents, this.__edit.bind(this));
+      this.__sync.update(record, context, this.__edit.bind(this));
     } else {
       this.__edit(record);
     }
   }
 
-  delete({record, parents}) {
+  delete({record, context}) {
     if(record.get("__cid") && record.get("id")) {
       if(this.__sync) {
-        this.__sync.update(record, parents, this.__remove.bind(this));
+        this.__sync
+          .context()
+          .update(record, context, this.__remove.bind(this));
       } else {
         this.__remove(record);
       }
