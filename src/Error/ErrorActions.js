@@ -22,7 +22,7 @@ class ErrorActions {
 
   dismissAll() {
     this.dispatcher.dispatch({
-      type: this.constants.actions.clear,
+      type: this.constants.actions.dismissAll,
     })
   }
 
