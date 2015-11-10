@@ -72,16 +72,18 @@ class SimpleStore extends EventEmitter {
     this.filterFunction = _defaultFilterFunction;
 
     // PRIVATE IMPORTANT !!!!!
-    this.__reverse = false;
+    this.__initialized = false;
     this.__counter = 0;
-    this.__collection = Immutable.Map();
-    this.__filteredCollection;
+
+    this.__reverse = false;
     this.__filtering = false;
+
     this.__dispatcher = __dispatcher;
     this.__dispatcher.register(this.payloadHandler.bind(this));
+
     this.__dict = Immutable.Map();
+    this.__collection = Immutable.Map();
     this.__sync = sync;
-    this.__initialized = false;
   }
 
 
@@ -115,6 +117,7 @@ class SimpleStore extends EventEmitter {
 
   __loadData(data) {
     this.__collection = Immutable.Map();
+    this.__dict = Immutable.Map();
     this.__parseCollection(data);
     this.__initialized = true;
     this.emit(this.events.change);
