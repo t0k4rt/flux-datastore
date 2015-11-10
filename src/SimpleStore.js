@@ -88,7 +88,7 @@ class SimpleStore extends EventEmitter {
   /********************/
   /**  Init scripts  **/
   /********************/
-  init({context: context = {}}) {
+  init({context: context = null}) {
     if(!this.__loaded) {
       if(this.__sync) {
         this.__sync
@@ -225,7 +225,7 @@ class SimpleStore extends EventEmitter {
   /**********************/
 
   // todo : when dealing with record, we should check that it is an instance of Record
-  create({record, context: context = {}}) {
+  create({record, context: context = null}) {
     if(this.__sync) {
       this.__sync
         .context(context)
@@ -235,7 +235,7 @@ class SimpleStore extends EventEmitter {
     }
   }
 
-  update({record, context: context = {}}) {
+  update({record, context: context = null}) {
     // can update ?
     if(!record.get("id")) {
       throw new Error("Cannot update non synced entity.");
@@ -256,7 +256,7 @@ class SimpleStore extends EventEmitter {
     }
   }
 
-  delete({record, context: context = {}}) {
+  delete({record, context: context = null}) {
     if(record.get("__cid") && record.get("id")) {
       if(this.__sync) {
         this.__sync
