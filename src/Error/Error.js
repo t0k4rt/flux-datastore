@@ -4,6 +4,9 @@ import ErrorActions from './ErrorActions';
 import ErrorStore from './ErrorStore';
 import Constants from '../Constants';
 import Record from '../Record';
+import {Dispatcher} from "flux";
+
+export default new Dispatcher();
 
 let errorConstants= new Constants("error", {
   create: "create",
@@ -11,7 +14,12 @@ let errorConstants= new Constants("error", {
   clear: "clear"
 });
 
-let ErrorRecord = new Immutable.Record({message: null, ttl: 2000});
+let d = new Dispatcher();
 
-export const store = new ErrorStore(ErrorRecord, errorConstants);
-export const actions = new ErrorActions(errorConstants);
+let ErrorRecord = new Record({message: null, ttl: 2000});
+
+export default {
+  ErrorRecord: ErrorRecord,
+  ErrorStore: new ErrorStore(ErrorRecord, errorConstants, d),
+  ErrorActions: new ErrorActions(errorConstants, d)
+};
