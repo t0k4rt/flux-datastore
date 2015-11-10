@@ -2,11 +2,14 @@
 
 import baseJQuery from "jquery";
 import assign from "object-assign";
-//import ErrorAction from "./Error/ErrorActions"
+import template from "lodash.template";
+import ErrorAction from "./Error/ErrorActions";
 
 class Sync {
 
   constructor(jquery, baseUrl, options) {
+    let _options = options || {};
+
     this.__baseUrl = baseUrl;
     this.__jquery = (jquery) ? jquery : baseJQuery;
     this.__context = {};
@@ -19,13 +22,13 @@ class Sync {
       'delete': '/${id}'
     };
 
-    if(options.routes) {
-      this.__routes = assign(this.__routes, options.routes);
+    if(_options.routes) {
+      this.__routes = assign(this.__routes, _options.routes);
     }
   }
 
-  addContext(_context) {
-    this.__context = _context;
+  context(_context) {
+    this.__context = _context || {};
     return this;
   }
 
@@ -35,19 +38,21 @@ class Sync {
       dataType: 'json',
       method: 'GET',
       cache: false
-    }).fail(this.__syncError)
+    })
+    .fail(this.__syncError)
     .done(function(data) {
       success(data);
     });
   }
 
   fetch(id, success) {
-    return $.ajax({
+    return this.__jquery.ajax({
       url: this.__generateUrl('fetch', { id: id }),
       dataType: 'json',
       method: 'GET',
       cache: false
-    }).fail(this.__syncError)
+    })
+    .fail(this.__syncError)
     .done(function(data) {
       success(data);
     });
@@ -59,7 +64,8 @@ class Sync {
       dataType: 'json',
       method: 'POST',
       data: record
-    }).fail(this.__syncError)
+    })
+    .fail(this.__syncError)
     .done(function(_data) {
       let data = _data;
       // merge data from rest api
@@ -76,11 +82,12 @@ class Sync {
 
   update(record, success){
     return this.__jquery.ajax({
-      url: this.__generateUrl('update', { record: record }),
+      url: this.__generateUrl('update', { id: record.get('id') }),
       dataType: 'json',
       method: 'PUT',
       data: record
-    }).fail(this.__syncError)
+    })
+    .fail(this.__syncError)
     .done(function() {
       success(record);
     });
@@ -88,33 +95,31 @@ class Sync {
 
   delete(record, success) {
     return this.__jquery.ajax({
-      url: this.__generateUrl('delete', { record: record }),
+      url: this.__generateUrl('delete', { id: record.get('id') }),
       dataType: 'json',
       method: 'DELETE'
-    }).fail(this.__syncError)
+    })
+    .fail(this.__syncError)
     .done(function() {
       success(record);
     });
   }
 
-  __syncError(err) {
-    //let errorMessage = JSON.parse(xhr.responseText);
-    //ErrorAction.add(new Error(errorMessage.message, status));
+  __syncError(xhr, textStatus, err) {
+    let errMsg = JSON.parse(xhr.responseText);
+    ErrorAction.add(new Error(errMsg.message, xhrstatus));
   }
 
   __generateUrl(method, params) {
+    let _params = params || {};
+    let _context = this.__context;
+    let _compiled = template(this.__routes[method]);
 
-    let context = this.__context;
-
-    if(params.id) {
-      let id = params.id;
+    if(_params.id) {
+      let id = _params.id;
     }
 
-    if(params.record) {
-      let id = record.get("id");
-    }
-
-    return this.baseUrl + this.__routes[method];
+    return this.__baseUrl + _compiled(_context);
   }
 }
 

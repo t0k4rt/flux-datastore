@@ -88,10 +88,12 @@ class SimpleStore extends EventEmitter {
   /********************/
   /**  Init scripts  **/
   /********************/
-  init({context}) {
+  init({context: context = {}} = {}) {
     if(!this.__loaded) {
       if(this.__sync) {
-        this.__sync.fetchAll(this.__loadData.bind(this));
+        this.__sync
+          .context(context)
+          .fetchAll(this.__loadData.bind(this));
       } else {
         this.__initialized = true;
       }
@@ -184,6 +186,11 @@ class SimpleStore extends EventEmitter {
     return this.__collection.get(cid);
   }
 
+  __assertRecord(_record) {
+    if(!(_record instanceof Immutable.Record)) {
+      throw new Error("The record instance needs to be an instance of Immutable.Record");
+    }
+  }
 
   /********************/
   /** Public getters **/
@@ -223,15 +230,22 @@ class SimpleStore extends EventEmitter {
   /**********************/
 
   // todo : when dealing with record, we should check that it is an instance of Record
-  create({record, context}) {
+  create({record, context: context = null} = {}) {
+
+    this.__assertRecord(record);
+
     if(this.__sync) {
-      this.__sync.create(record, context, this.__add.bind(this));
+      this.__sync
+        .context(context)
+        .create(record, this.__add.bind(this));
     } else {
       this.__add(record);
     }
   }
 
-  update({record, context}) {
+  update({record, context: context = null} = {}) {
+    this.__assertRecord(record);
+
     // can update ?
     if(!record.get("id")) {
       throw new Error("Cannot update non synced entity.");
@@ -244,18 +258,23 @@ class SimpleStore extends EventEmitter {
     }
 
     if(this.__sync) {
-      this.__sync.update(record, context, this.__edit.bind(this));
+      this.__sync
+        .context(context)
+        .update(record, this.__edit.bind(this));
     } else {
       this.__edit(record);
     }
   }
 
-  delete({record, context}) {
+  delete({record, context: context = null} = {}) {
+
+    this.__assertRecord(record);
+
     if(record.get("__cid") && record.get("id")) {
       if(this.__sync) {
         this.__sync
-          .context()
-          .update(record, context, this.__remove.bind(this));
+          .context(context)
+          .update(record, this.__remove.bind(this));
       } else {
         this.__remove(record);
       }
