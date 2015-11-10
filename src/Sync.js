@@ -106,8 +106,8 @@ class Sync {
   }
 
   __syncError(xhr, textStatus, err) {
-    let errMsg = JSON.parse(xhr.responseText);
-    ErrorActions.create(new ErrorRecord({ message: errMsg.message}));
+    //let errMsg = JSON.parse(xhr.responseText);
+    //ErrorActions.create(new ErrorRecord({ message: errMsg.message}));
   }
 
   __generateUrl(method, params) {
