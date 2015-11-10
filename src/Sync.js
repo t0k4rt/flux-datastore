@@ -27,7 +27,7 @@ class Sync {
     }
   }
 
-  addContext(_context) {
+  context(_context) {
     this.__context = _context;
     return this;
   }
