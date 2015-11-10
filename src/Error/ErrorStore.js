@@ -103,6 +103,17 @@ class ErrorStore extends EventEmitter {
     this.emit(this.events.change);
   }
 
+  /**********************/
+  /** listener section **/
+  /**********************/
+
+  listenToChanges(callback) {
+    this.listenTo(this.events.change, callback);
+  }
+
+  stopListeningToChanges(callback) {
+    this.stopListeningTo(this.events.change, callback);
+  }
 
 
   /**************************/
