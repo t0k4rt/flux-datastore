@@ -4,7 +4,7 @@ import ErrorActions from './ErrorActions';
 import ErrorStore from './ErrorStore';
 import Constants from '../Constants';
 import Record from '../Record';
-import {Dispatcher} from "flux";
+import { Dispatcher } from "flux";
 
 export default new Dispatcher();
 
@@ -16,7 +16,7 @@ let errorConstants= new Constants("error", {
 
 let d = new Dispatcher();
 
-let ErrorRecord = new Record({message: null, ttl: 4000});
+let ErrorRecord = new Record({ message: null, ttl: 4000 });
 let _ErrorStore =  new ErrorStore(ErrorRecord, errorConstants, d);
 let _ErrorActions = new ErrorActions(errorConstants, d);
 

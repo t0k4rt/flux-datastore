@@ -3,7 +3,7 @@
 import baseJQuery from "jquery";
 import assign from "object-assign";
 import template from "lodash.template";
-//import ErrorAction from "./Error/ErrorActions";
+import { ErrorActions, ErrorRecord } from "./Error/Error";
 
 class Sync {
 
@@ -107,7 +107,7 @@ class Sync {
 
   __syncError(xhr, textStatus, err) {
     let errMsg = JSON.parse(xhr.responseText);
-    //ErrorAction.create(new Error(errMsg.message, xhrstatus));
+    ErrorActions.create(new ErrorRecord({ message: errMsg.message}));
   }
 
   __generateUrl(method, params) {

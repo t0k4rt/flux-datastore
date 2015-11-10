@@ -114,6 +114,7 @@ class SimpleStore extends EventEmitter {
   }
 
   __loadData(data) {
+    this.__collection = Immutable.Map();
     this.__parseCollection(data);
     this.__initialized = true;
     this.emit(this.events.change);
