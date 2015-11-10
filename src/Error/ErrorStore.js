@@ -55,7 +55,7 @@ class ErrorStore extends EventEmitter {
         let ttl;
         if(this.__collection.count() > 1) {
           ttl = this.__collection.toList().last().get("ttl");
-          ttl += 200;
+          ttl += 500;
         }
 
         // set cid from internal collection counter

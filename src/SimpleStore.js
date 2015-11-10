@@ -89,7 +89,7 @@ class SimpleStore extends EventEmitter {
   /**  Init scripts  **/
   /********************/
   init({context: context = {}} = {}) {
-    if(!this.__loaded) {
+    if(!this.__initialized) {
       if(this.__sync) {
         this.__sync
           .context(context)

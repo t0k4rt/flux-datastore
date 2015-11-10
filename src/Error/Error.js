@@ -16,7 +16,7 @@ let errorConstants= new Constants("error", {
 
 let d = new Dispatcher();
 
-let ErrorRecord = new Record({message: null, ttl: 2000});
+let ErrorRecord = new Record({message: null, ttl: 4000});
 let _ErrorStore =  new ErrorStore(ErrorRecord, errorConstants, d);
 let _ErrorActions = new ErrorActions(errorConstants, d);
 
