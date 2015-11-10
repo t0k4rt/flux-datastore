@@ -88,11 +88,11 @@ class SimpleStore extends EventEmitter {
   /********************/
   /**  Init scripts  **/
   /********************/
-  init({context: context = null}) {
+  init({context: context = {}} = {}) {
     if(!this.__loaded) {
       if(this.__sync) {
         this.__sync
-          .context(context)
+          .context(_context)
           .fetchAll(this.__loadData.bind(this));
       } else {
         this.__initialized = true;
@@ -186,6 +186,11 @@ class SimpleStore extends EventEmitter {
     return this.__collection.get(cid);
   }
 
+  __assertRecord(_record) {
+    if(!(_record instanceof Immutable.Record)) {
+      throw new Error("The record instance needs to be an instance of Immutable.Record");
+    }
+  }
 
   /********************/
   /** Public getters **/
@@ -225,7 +230,10 @@ class SimpleStore extends EventEmitter {
   /**********************/
 
   // todo : when dealing with record, we should check that it is an instance of Record
-  create({record, context: context = null}) {
+  create({record, context: context = null} = {}) {
+
+    this.__assertRecord(record);
+
     if(this.__sync) {
       this.__sync
         .context(context)
@@ -235,7 +243,9 @@ class SimpleStore extends EventEmitter {
     }
   }
 
-  update({record, context: context = null}) {
+  update({record, context: context = null} = {}) {
+    this.__assertRecord(record);
+
     // can update ?
     if(!record.get("id")) {
       throw new Error("Cannot update non synced entity.");
@@ -256,7 +266,10 @@ class SimpleStore extends EventEmitter {
     }
   }
 
-  delete({record, context: context = null}) {
+  delete({record, context: context = null} = {}) {
+
+    this.__assertRecord(record);
+
     if(record.get("__cid") && record.get("id")) {
       if(this.__sync) {
         this.__sync
