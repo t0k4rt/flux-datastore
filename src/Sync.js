@@ -72,7 +72,7 @@ class Sync {
       record = record.withMutations(function(_record) {
         for(let prop in data) {
           if(_record.has(prop) && data.hasOwnProperty(prop)) {
-            _record.set("prop", data[prop]);
+            _record.set(prop, data[prop]);
           }
         }
       });
@@ -107,7 +107,7 @@ class Sync {
 
   __syncError(xhr, textStatus, err) {
     let errMsg = JSON.parse(xhr.responseText);
-    //ErrorAction.add(new Error(errMsg.message, xhrstatus));
+    //ErrorAction.create(new Error(errMsg.message, xhrstatus));
   }
 
   __generateUrl(method, params) {

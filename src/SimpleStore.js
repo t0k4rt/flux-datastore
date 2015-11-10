@@ -310,7 +310,7 @@ class SimpleStore extends EventEmitter {
   /*****************************/
   sort({keys}) {
     this.resetSort();
-    this.sortKeys = keys||[];
+    this.sortKeys = keys||["id"];
     this.emit(this.events.sort);
   }
 
