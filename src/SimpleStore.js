@@ -64,7 +64,7 @@ class SimpleStore extends EventEmitter {
     this.filterKeys = [];
 
     // sort
-    this.sortKeys = [];
+    this.sortKeys = ["id"];
 
     // overridable base variables
     this.events = _defaultEvents;
@@ -89,7 +89,7 @@ class SimpleStore extends EventEmitter {
   /**  Init scripts  **/
   /********************/
   init({context: context = {}} = {}) {
-    if(!this.__loaded) {
+    if(!this.__initialized) {
       if(this.__sync) {
         this.__sync
           .context(context)
@@ -98,6 +98,7 @@ class SimpleStore extends EventEmitter {
         this.__initialized = true;
       }
     }
+    window.setTimeout((function() { this.__initialized = false; }).bind(this), 10000);
   }
 
   __parseModel(data) {
@@ -274,7 +275,7 @@ class SimpleStore extends EventEmitter {
       if(this.__sync) {
         this.__sync
           .context(context)
-          .update(record, this.__remove.bind(this));
+          .delete(record, this.__remove.bind(this));
       } else {
         this.__remove(record);
       }

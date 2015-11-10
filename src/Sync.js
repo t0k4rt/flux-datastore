@@ -16,10 +16,10 @@ class Sync {
 
     this.__routes = {
       'fetchAll': '',
-      'fetch': '/${id}',
+      'fetch': '${id}',
       'create': '',
-      'update': '/${id}',
-      'delete': '/${id}'
+      'update': '${id}',
+      'delete': '${id}'
     };
 
     if(_options.routes) {
@@ -69,10 +69,10 @@ class Sync {
     .done(function(_data) {
       let data = _data;
       // merge data from rest api
-      record = record.withMutations(function() {
+      record = record.withMutations(function(_record) {
         for(let prop in data) {
-          if(record.has(prop) && data.hasOwnProperty(prop)) {
-            record.set("prop", data[prop]);
+          if(_record.has(prop) && data.hasOwnProperty(prop)) {
+            _record.set("prop", data[prop]);
           }
         }
       });
