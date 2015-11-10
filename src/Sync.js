@@ -116,7 +116,7 @@ class Sync {
     let _compiled = template(this.__routes[method]);
 
     if(_params.id) {
-      let id = _params.id;
+      _context = assign(_context, { id: _params.id });
     }
 
     return this.__baseUrl + _compiled(_context);
