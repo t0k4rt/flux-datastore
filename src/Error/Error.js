@@ -17,9 +17,14 @@ let errorConstants= new Constants("error", {
 let d = new Dispatcher();
 
 let ErrorRecord = new Record({message: null, ttl: 2000});
+let _ErrorStore =  new ErrorStore(ErrorRecord, errorConstants, d);
+let _ErrorActions = new ErrorActions(errorConstants, d);
 
 export default {
   ErrorRecord: ErrorRecord,
-  ErrorStore: new ErrorStore(ErrorRecord, errorConstants, d),
-  ErrorActions: new ErrorActions(errorConstants, d)
+  ErrorStore: _ErrorStore,
+  ErrorActions: _ErrorActions
 };
+
+export { ErrorRecord, _ErrorStore as ErrorStore, _ErrorActions as ErrorActions };
+
