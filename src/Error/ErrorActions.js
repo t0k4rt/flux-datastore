@@ -20,9 +20,16 @@ class ErrorActions {
     })
   }
 
-  clear() {
+  dismissAll() {
     this.dispatcher.dispatch({
       type: this.constants.actions.clear,
+    })
+  }
+
+  dismiss(record) {
+    this.dispatcher.dispatch({
+      type: this.constants.actions.dismiss,
+      record: record
     })
   }
 }

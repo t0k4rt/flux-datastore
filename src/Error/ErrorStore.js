@@ -98,9 +98,13 @@ class ErrorStore extends EventEmitter {
     }
   }
 
-  clear() {
+  dismissAll() {
     this.__collection = Immutable.Map();
     this.emit(this.events.change);
+  }
+
+  dismiss({record}) {
+    this.delete({record: record});
   }
 
   /**********************/

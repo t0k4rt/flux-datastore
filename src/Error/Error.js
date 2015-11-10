@@ -11,7 +11,8 @@ export default new Dispatcher();
 let errorConstants= new Constants("error", {
   create: "create",
   delete: "delete",
-  clear: "clear"
+  dismiss: "dismiss",
+  dismissAll: "dismiss_all"
 });
 
 let d = new Dispatcher();
