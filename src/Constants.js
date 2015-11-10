@@ -23,7 +23,7 @@ class Constants {
   set actions(obj) {
     for(let prop in obj) {
       if(obj.hasOwnProperty(prop)) {
-        obj[prop] = this.namespace + obj[prop];
+        obj[prop] = this.namespace +"_"+ obj[prop];
       }
     }
     if(Object.keys(obj).length > 0) {
