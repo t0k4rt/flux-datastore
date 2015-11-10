@@ -92,7 +92,7 @@ class SimpleStore extends EventEmitter {
     if(!this.__loaded) {
       if(this.__sync) {
         this.__sync
-          .context(_context)
+          .context(context)
           .fetchAll(this.__loadData.bind(this));
       } else {
         this.__initialized = true;
