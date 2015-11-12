@@ -256,9 +256,10 @@ class SimpleStore extends EventEmitter {
       throw new Error("Cannot update non synced entity.");
     }
 
-    // should update ?
+    // should update and sync ?
     let originalRecord = this.__collection.get(record.get("__cid"));
     if(Immutable.is(record, originalRecord)) {
+      this.__edit(record);
       return;
     }
 
