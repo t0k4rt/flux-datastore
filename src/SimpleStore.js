@@ -72,25 +72,23 @@ class SimpleStore extends EventEmitter {
     this.filterFunction = _defaultFilterFunction;
 
     // PRIVATE IMPORTANT !!!!!
-    this.__initialized = false;
-    this.__counter = 0;
-
     this.__reverse = false;
+    this.__counter = 0;
+    this.__collection = Immutable.Map();
+    this.__filteredCollection;
     this.__filtering = false;
-
     this.__dispatcher = __dispatcher;
     this.__dispatcher.register(this.payloadHandler.bind(this));
-
     this.__dict = Immutable.Map();
-    this.__collection = Immutable.Map();
     this.__sync = sync;
+    this.__initialized = false;
   }
 
 
   /********************/
   /**  Init scripts  **/
   /********************/
-  init({context: context = {}} = {}) {
+  init({context} = {}) {
     if(!this.__initialized) {
       if(this.__sync) {
         this.__sync
@@ -117,7 +115,6 @@ class SimpleStore extends EventEmitter {
 
   __loadData(data) {
     this.__collection = Immutable.Map();
-    this.__dict = Immutable.Map();
     this.__parseCollection(data);
     this.__initialized = true;
     this.emit(this.events.change);
@@ -235,7 +232,7 @@ class SimpleStore extends EventEmitter {
   /**********************/
 
   // todo : when dealing with record, we should check that it is an instance of Record
-  create({record, context: context = null} = {}) {
+  create({record, context} = {}) {
 
     this.__assertRecord(record);
 
@@ -248,7 +245,7 @@ class SimpleStore extends EventEmitter {
     }
   }
 
-  update({record, context: context = null} = {}) {
+  update({record, context} = {}) {
     this.__assertRecord(record);
 
     // can update ?
@@ -272,7 +269,7 @@ class SimpleStore extends EventEmitter {
     }
   }
 
-  delete({record, context: context = null} = {}) {
+  delete({record, context} = {}) {
 
     this.__assertRecord(record);
 
