@@ -6,7 +6,7 @@
   "dependencies": {
     "jquery": "git+https://github.com/kairosagency/jquery.git#ajax"
   },
-  "peerDependencies": {
+  "dependencies": {
     "flux": "^2.1.1",
     "immutable": "~3.7.4",
     "object-assign": "^4.0.1",
@@ -19,13 +19,15 @@
     "envify": "^3.4.0",
     "git-hooks": "^1.0.2",
     "qunitjs": "~1.19.0",
-    "uglify-js": "^2.4.24",
-    "watchify": "~3.2"
+    "uglify-js": "2.4.24",
+    "watchify": "~3.2",
+    "benchmark": "*"
   },
   "scripts": {
     "start": "watchify tests/tests.js -o tests/bundle-tests.js -v -d --poll",
     "build": "babel -d lib src --presets es2015",
-    "build-test": "browserify tests/tests.js > tests/bundle-tests.js"
+    "build-test": "browserify tests/tests.js > tests/bundle-tests.js",
+    "build-benchmark": "browserify tests/benchmark.js > tests/bundle-benchmark.js"
   },
   "author": [
     "Alexandre Assouad",
@@ -33,8 +35,7 @@
   ],
   "browserify": {
     "transform": [
-      "babelify",
-      "envify"
+      "babelify"
     ]
   }
 }

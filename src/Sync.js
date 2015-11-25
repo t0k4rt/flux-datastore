@@ -32,30 +32,44 @@ class Sync {
     return this;
   }
 
-  fetchAll(success) {
-    return this.__jquery.ajax({
-      url: this.__generateUrl('fetchAll'),
-      dataType: 'json',
-      method: 'GET',
-      cache: false
-    })
-    .fail(this.__syncError)
-    .done(function(data) {
-      success(data);
-    });
+  fetchAll() {
+    let resolveFn = function(resolve, reject) {
+      this.__jquery.ajax({
+        url: this.__generateUrl('fetchAll'),
+        dataType: 'json',
+        method: 'GET',
+        cache: false
+      })
+      .fail(function(xhr, textStatus, err) {
+        let errMsg = JSON.parse(xhr.responseText);
+        reject({statusCode: xhr.status, message: errMsg});
+        })
+      .done(function(data) {
+        resolve(data);
+      });
+    };
+
+    return new Promise(resolveFn.bind(this));
   }
 
-  fetch(id, success) {
-    return this.__jquery.ajax({
-      url: this.__generateUrl('fetch', { id: id }),
-      dataType: 'json',
-      method: 'GET',
-      cache: false
-    })
-    .fail(this.__syncError)
-    .done(function(data) {
-      success(data);
-    });
+  fetch(id) {
+    let resolveFn = function(resolve, reject) {
+      this.__jquery.ajax({
+        url: this.__generateUrl('fetch', { id: id }),
+        dataType: 'json',
+        method: 'GET',
+        cache: false
+      })
+      .fail(function(xhr, textStatus, err) {
+        let errMsg = JSON.parse(xhr.responseText);
+        reject({statusCode: xhr.status, message: errMsg});
+        })
+      .done(function(data) {
+        resolve(data);
+      });
+    };
+
+    return new Promise(resolveFn.bind(this));
   }
 
   create(record, success) {
@@ -106,8 +120,12 @@ class Sync {
   }
 
   __syncError(xhr, textStatus, err) {
-    //let errMsg = JSON.parse(xhr.responseText);
-    //ErrorActions.create(new ErrorRecord({ message: errMsg.message}));
+    try {
+      let errMsg = JSON.parse(xhr.responseText);
+      ErrorActions.create(new ErrorRecord({ message: errMsg.message}));
+    } catch(e) {
+      ErrorActions.create(new ErrorRecord({ message: "An unknown error occured"}));
+    }
   }
 
   __generateUrl(method, params) {
