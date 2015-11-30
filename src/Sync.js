@@ -3,7 +3,6 @@
 import baseJQuery from "jquery";
 import assign from "object-assign";
 import template from "lodash.template";
-import { ErrorActions, ErrorRecord } from "./Error/Error";
 
 class Sync {
 
@@ -32,6 +31,15 @@ class Sync {
     return this;
   }
 
+  __getErrorMessage(xhr) {
+    try {
+      let errorResponse = JSON.parse(xhr.responseText);
+      return {statusCode: xhr.status, message: errorResponse.message, title: errorResponse.title, raw: errorResponse};
+    } catch(e) {
+      return {statusCode: xhr.status, message: "An unknown error occured"};
+    }
+  }
+
   fetchAll() {
     let resolveFn = function(resolve, reject) {
       this.__jquery.ajax({
@@ -41,14 +49,13 @@ class Sync {
         cache: false
       })
       .fail(function(xhr, textStatus, err) {
-        let errMsg = JSON.parse(xhr.responseText);
-        reject({statusCode: xhr.status, message: errMsg});
-        })
+        reject(this.__getErrorMessage(xhr));
+      }.bind(this))
       .done(function(data) {
         resolve(data);
       });
     };
-
+    this.context({});
     return new Promise(resolveFn.bind(this));
   }
 
@@ -61,71 +68,79 @@ class Sync {
         cache: false
       })
       .fail(function(xhr, textStatus, err) {
-        let errMsg = JSON.parse(xhr.responseText);
-        reject({statusCode: xhr.status, message: errMsg});
-        })
+        reject(this.__getErrorMessage(xhr));
+      }.bind(this))
       .done(function(data) {
         resolve(data);
       });
     };
-
+    this.context({});
     return new Promise(resolveFn.bind(this));
   }
 
-  create(record, success) {
-    return this.__jquery.ajax({
-      url: this.__generateUrl('create'),
-      dataType: 'json',
-      method: 'POST',
-      data: record
-    })
-    .fail(this.__syncError)
-    .done(function(_data) {
-      let data = _data;
-      // merge data from rest api
-      record = record.withMutations(function(_record) {
-        for(let prop in data) {
-          if(_record.has(prop) && data.hasOwnProperty(prop)) {
-            _record.set(prop, data[prop]);
+  create(record) {
+    let resolveFn = function(resolve, reject) {
+      this.__jquery.ajax({
+        url: this.__generateUrl('create'),
+        dataType: 'json',
+        method: 'POST',
+        data: record
+      })
+      .fail(function(xhr, textStatus, err) {
+        reject(this.__getErrorMessage(xhr));
+      }.bind(this))
+      .done(function(_data) {
+        let data = _data;
+        // merge data from rest api
+        record = record.withMutations(function(_record) {
+          for(let prop in data) {
+            if(_record.has(prop) && data.hasOwnProperty(prop)) {
+              _record.set(prop, data[prop]);
+            }
           }
-        }
+        });
+        resolve(record);
       });
-      success(record);
-    });
+    };
+    this.context({});
+    return new Promise(resolveFn.bind(this));
   }
 
-  update(record, success){
-    return this.__jquery.ajax({
-      url: this.__generateUrl('update', { id: record.get('id') }),
-      dataType: 'json',
-      method: 'PUT',
-      data: record
-    })
-    .fail(this.__syncError)
-    .done(function() {
-      success(record);
-    });
+  update(record){
+    let resolveFn = function(resolve, reject) {
+      this.__jquery.ajax({
+        url: this.__generateUrl('update', { id: record.get('id') }),
+        dataType: 'json',
+        method: 'PUT',
+        data: record
+      })
+      .fail(function(xhr, textStatus, err) {
+        reject(this.__getErrorMessage(xhr));
+      }.bind(this))
+      .done(function() {
+        resolve(record);
+      });
+    };
+    this.context({});
+    return new Promise(resolveFn.bind(this));
   }
 
-  delete(record, success) {
-    return this.__jquery.ajax({
-      url: this.__generateUrl('delete', { id: record.get('id') }),
-      dataType: 'json',
-      method: 'DELETE'
-    })
-    .fail(this.__syncError)
-    .done(function() {
-      success(record);
-    });
-  }
-
-  __syncError(xhr, textStatus, err) {
-    try {
-      let errMsg = JSON.parse(xhr.responseText);
-      ErrorActions.create(new ErrorRecord({ message: errMsg.message}));
-    } catch(e) {
-      ErrorActions.create(new ErrorRecord({ message: "An unknown error occured"}));
-    }
+  delete(record) {
+    let resolveFn = function(resolve, reject) {
+      this.__jquery.ajax({
+        url: this.__generateUrl('delete', { id: record.get('id') }),
+        dataType: 'json',
+        method: 'DELETE'
+      })
+      .fail(function(xhr, textStatus, err) {
+        reject(this.__getErrorMessage(xhr));
+      }.bind(this))
+      .done(function(data) {
+        resolve(record);
+      });
+    };
+    this.context({});
+    return new Promise(resolveFn.bind(this));
   }
 
   __generateUrl(method, params) {
