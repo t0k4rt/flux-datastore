@@ -266,7 +266,7 @@ class SimpleStore extends EventEmitter {
           this.emit(this.events.success);
           return Promise.resolve(record);
         }.bind(this))
-        .catch(function(error){this.emit(this.event.error, error)}.bind(this));
+        .catch(function(error){this.emit(this.events.error, error)}.bind(this));
 
     } else {
       this.__add(record);
@@ -321,7 +321,7 @@ class SimpleStore extends EventEmitter {
             this.emit(this.events.success);
             return Promise.resolve(record);
           }.bind(this))
-          .catch(function(error){this.emit(this.event.error, error)}.bind(this));
+          .catch(function(error){this.emit(this.events.error, error)}.bind(this));
 
       } else {
         this.__remove(record);
