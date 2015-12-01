@@ -41,9 +41,11 @@ class Sync {
   }
 
   fetchAll() {
+    let _context = this.__context;
+    this.__context = {};
     let resolveFn = function(resolve, reject) {
       this.__jquery.ajax({
-        url: this.__generateUrl('fetchAll'),
+        url: this.__generateUrl('fetchAll', {}, _context),
         dataType: 'json',
         method: 'GET',
         cache: false
@@ -55,14 +57,15 @@ class Sync {
         resolve(data);
       });
     };
-    this.context({});
     return new Promise(resolveFn.bind(this));
   }
 
   fetch(id) {
+    let _context = this.__context;
+    this.__context = {};
     let resolveFn = function(resolve, reject) {
       this.__jquery.ajax({
-        url: this.__generateUrl('fetch', { id: id }),
+        url: this.__generateUrl('fetch', { id: id }, _context),
         dataType: 'json',
         method: 'GET',
         cache: false
@@ -74,14 +77,15 @@ class Sync {
         resolve(data);
       });
     };
-    this.context({});
     return new Promise(resolveFn.bind(this));
   }
 
   create(record) {
+    let _context = this.__context;
+    this.__context = {};
     let resolveFn = function(resolve, reject) {
       this.__jquery.ajax({
-        url: this.__generateUrl('create'),
+        url: this.__generateUrl('create', {}, _context),
         dataType: 'json',
         method: 'POST',
         data: record
@@ -102,14 +106,15 @@ class Sync {
         resolve(record);
       });
     };
-    this.context({});
     return new Promise(resolveFn.bind(this));
   }
 
   update(record){
+    let _context = this.__context;
+    this.__context = {};
     let resolveFn = function(resolve, reject) {
       this.__jquery.ajax({
-        url: this.__generateUrl('update', { id: record.get('id') }),
+        url: this.__generateUrl('update', { id: record.get('id') }, _context),
         dataType: 'json',
         method: 'PUT',
         data: record
@@ -121,14 +126,15 @@ class Sync {
         resolve(record);
       });
     };
-    this.context({});
     return new Promise(resolveFn.bind(this));
   }
 
   delete(record) {
+    let _context = this.__context;
+    this.__context = {};
     let resolveFn = function(resolve, reject) {
       this.__jquery.ajax({
-        url: this.__generateUrl('delete', { id: record.get('id') }),
+        url: this.__generateUrl('delete', { id: record.get('id') }, _context),
         dataType: 'json',
         method: 'DELETE'
       })
@@ -139,13 +145,11 @@ class Sync {
         resolve(record);
       });
     };
-    this.context({});
     return new Promise(resolveFn.bind(this));
   }
 
-  __generateUrl(method, params) {
+  __generateUrl(method, params, _context) {
     let _params = params || {};
-    let _context = this.__context;
     let _compiled = template(this.__routes[method]);
 
     if(_params.id) {
