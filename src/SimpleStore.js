@@ -91,7 +91,7 @@ class SimpleStore extends EventEmitter {
   init({context} = {}) {
     if(!this.__initialized) {
       if(this.__sync) {
-        window.setTimeout((function() { this.__initialized = false; }).bind(this), 10000);
+        window.setTimeout((function() { this.__initialized = false; }).bind(this), 1500);
         return this.__sync
           .context(context)
           .fetchAll()
@@ -132,7 +132,7 @@ class SimpleStore extends EventEmitter {
     this.__dict = Immutable.Map();
     this.__parseCollection(data);
 
-    return this.__collection;
+    return this.getAll();
   }
   __parseCollection(data) {
     data.forEach((elt, index) => {
