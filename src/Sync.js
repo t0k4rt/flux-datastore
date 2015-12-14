@@ -39,30 +39,14 @@ class Sync {
       return {statusCode: xhr.status, message: "An unknown error occured"};
     }
   }
-  __generateQueryString(params) {
-    let qs = [];
-    for(let key in params) {
-      if(params.hasOwnProperty(key)) {
-        qs.push(key+"="+params[key]);
-      }
-    }
-    if(qs.length > 0) {
-      return "?"+qs.join("&");
-    }
-    else {
-      return "";
-    }
-  }
 
-  fetchAll(params = {}) {
-    let _context = this.__context;
-    this.__context = {};
-
+  http(_method, _url, _data) {
+    //todo : add data;
     let resolveFn = function(resolve, reject) {
       this.__jquery.ajax({
-        url: this.__generateUrl('fetchAll', {}, _context)+this.__generateQueryString(params),
+        url: _url,
         dataType: 'json',
-        method: 'GET',
+        method: _method,
         cache: false
       })
       .fail(function(xhr, textStatus, err) {
@@ -75,25 +59,18 @@ class Sync {
     return new Promise(resolveFn.bind(this));
   }
 
-  fetch(id, params = {}) {
+  fetchAll(queryParams = {}) {
     let _context = this.__context;
     this.__context = {};
+    let url = this.__generateUrl("fetchAll", _context, queryParams);
+    return this.http("GET", url);
+  }
 
-    let resolveFn = function(resolve, reject) {
-      this.__jquery.ajax({
-        url: this.__generateUrl('fetch', { id: id }, _context)+this.__generateQueryString(params),
-        dataType: 'json',
-        method: 'GET',
-        cache: false
-      })
-      .fail(function(xhr, textStatus, err) {
-        reject(this.__getErrorMessage(xhr));
-      }.bind(this))
-      .done(function(data) {
-        resolve(data);
-      });
-    };
-    return new Promise(resolveFn.bind(this));
+  fetch(id, queryParams = {}) {
+    let _context = this.__context;
+    this.__context = {};
+    let url = this.__generateUrl("fetch", assign({id: id},_context), queryParams);
+    return this.http("GET", url);
   }
 
   create(record) {
@@ -128,6 +105,7 @@ class Sync {
   update(record){
     let _context = this.__context;
     this.__context = {};
+
     let resolveFn = function(resolve, reject) {
       this.__jquery.ajax({
         url: this.__generateUrl('update', { id: record.get('id') }, _context),
@@ -148,31 +126,30 @@ class Sync {
   delete(record) {
     let _context = this.__context;
     this.__context = {};
-    let resolveFn = function(resolve, reject) {
-      this.__jquery.ajax({
-        url: this.__generateUrl('delete', { id: record.get('id') }, _context),
-        dataType: 'json',
-        method: 'DELETE'
-      })
-      .fail(function(xhr, textStatus, err) {
-        reject(this.__getErrorMessage(xhr));
-      }.bind(this))
-      .done(function(data) {
-        resolve(record);
-      });
-    };
-    return new Promise(resolveFn.bind(this));
+    let url = this.__generateUrl("fetch", assign({id: record.get('id')}, _context), queryParams);
+    return this.http("DELETE", url);
   }
 
-  __generateUrl(method, params, _context) {
+  __generateQueryString(params) {
+    let qs = [];
+    for(let key in params) {
+      if(params.hasOwnProperty(key)) {
+        qs.push(key+"="+params[key]);
+      }
+    }
+    if(qs.length > 0) {
+      return "?"+qs.join("&");
+    }
+    else {
+      return "";
+    }
+  }
+
+  __generateUrl(_route, _routeParams, _queryParams) {
     let _params = params || {};
     let _compiled = template(this.__routes[method]);
 
-    if(_params.id) {
-      _context = assign(_context, { id: _params.id });
-    }
-
-    return this.__baseUrl + _compiled(_context);
+    return this.__baseUrl + _compiled(_routeParams) + this.__generateQueryString(_queryParams);
   }
 }
 
