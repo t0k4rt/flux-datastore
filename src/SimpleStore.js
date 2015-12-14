@@ -134,14 +134,33 @@ class SimpleStore extends EventEmitter {
 
     return this.getAll();
   }
+
   __parseCollection(data) {
     data.forEach((elt, index) => {
       let record = this.__parseModel(elt);
       this.__add(record);
     });
   }
+
   __parseModel(data) {
     return this.record.fromJS(data);
+  }
+
+  __computeDiff(toCompare, criterion) {
+    let __ids = this.__dict.flip().toList().toArray();
+    let __diff = [];
+    toCompare.forEach(function(value){
+      if(__ids.indexOf((value[criterion]).toString()) === -1) {
+        __diff.push(value);
+      }
+    });
+    return __diff;
+  }
+
+  __loadDiffData(data) {
+    let diff = this.__computeDiff(data, this.idMap);
+    this.__parseCollection(diff);
+    return this.getAll();
   }
 
   /********************/
@@ -158,7 +177,7 @@ class SimpleStore extends EventEmitter {
         r=r.set("__cid", "c"+this.__counter);
 
         // when there is no sync, there is no id so we forge one
-        if(!this.__sync) {
+        if(!this.__sync && !r.get("id")) {
           r = r.set("id", guid());
         }
 
@@ -167,7 +186,6 @@ class SimpleStore extends EventEmitter {
 
         // add item to dict to be able to find it from id
         this.__addToDict(r);
-
         //todo : migrate these events
         //this.emit(this.events.success);
         //this.emit(this.events.change);

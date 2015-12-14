@@ -6,6 +6,42 @@ import Benchmark from 'benchmark';
 
 let testDispatcher = new Dispatcher();
 
+QUnit.test("Test __computeDiff function", function( assert ) {
+  let namespace = "k";
+  let actions = {
+      create: "create",
+      update: "update",
+      delete: "delete",
+      filter: "filter",
+      resetFilter: "reset_filter",
+      sort: "sort",
+      resetSort: "reset_sort",
+      reverse: "reverse"
+    };
+  let k = new Constants(namespace, actions);
+  let tr = Record({id: null, a:1, b:2});
+  let ts = new SimpleStore(tr, k, testDispatcher);
+
+  let dataCollection = [
+    {id: 1, a:"aaa", b:"bbb"},
+    {id: 2, a:"bbb", b:"ccc"},
+    {id: 3, a:"ccc", b:"ddd"},
+    {id: 4, a:"abc", b:"bcd"}
+  ];
+
+  ts.__parseCollection(dataCollection);
+
+  let dataCollectionBis = [
+    {id: 5, a:"ccc", b:"ddd"},
+    {id: 6, a:"abc", b:"bcd"}
+  ];
+  dataCollectionBis.concat(ts.__collection.slice(2).toList().toJS());
+
+  let diff = ts.__computeDiff(dataCollectionBis, "id");
+  assert.equal(diff.length, 2);
+});
+
+
 QUnit.test("Test constant actions", function( assert ) {
   let namespace = "k";
   let actions = {
@@ -56,6 +92,8 @@ QUnit.test("Test store private methods", function( assert ) {
 
   // test parse collection
   ts.__parseCollection(dataCollection);
+
+
   assert.equal(ts.getAll().count(),4, "collection should count 4 elts");
 
   let r1 = ts.get(1);
@@ -75,6 +113,7 @@ QUnit.test("Test store private methods", function( assert ) {
 
 
 QUnit.test("Test refresh collection and merge", function( assert ) {
+
   let namespace = "k";
   let actions = {
       create: "create",
@@ -98,9 +137,9 @@ QUnit.test("Test refresh collection and merge", function( assert ) {
     {id: 4, a:"abc", b:"bcd"}
   ];
 
-  // test parse collection
-  console.warn("first colletcion parsing");
-  ts.__parseCollection(dataCollection);
+  // test parse collection with loadData
+  console.warn("first collection parsing");
+  ts.__loadData(dataCollection);
   assert.equal(ts.getAll().count(),4, "collection should count 4 elts");
 
   let dataCollectionModified = [
@@ -111,8 +150,35 @@ QUnit.test("Test refresh collection and merge", function( assert ) {
   ];
 
   console.warn("second collection parsing");
-  ts.__parseCollection(dataCollectionModified);
+  ts.__loadData(dataCollectionModified);
+
   console.log("col", ts.__collection.toJS());
+  assert.equal(ts.getAll().count(),4, "collection should count 4 elts");
+
+
+  // test parse collection with loadDiffData
+  dataCollection = [
+    {id: 1, a:"aaa", b:"bbb"},
+    {id: 2, a:"bbb", b:"ccc"},
+    {id: 3, a:"ccc", b:"ddd"},
+    {id: 4, a:"abc", b:"bcd"}
+  ];
+
+  console.warn("first collection parsing");
+  ts.__loadData(dataCollection);
+  assert.equal(ts.getAll().count(),4, "collection should count 4 elts");
+
+  dataCollectionModified = [
+    {id: 1, a:"aaa", b:"bbb"},
+    {id: 2, a:"bbb", b:"ccc"},
+    {id: 3, a:"ccc", b:"ddd"},
+    {id: 4, a:"abcd", b:"bcd"}
+  ];
+
+  console.warn("second collection parsing with diff");
+  ts.__loadDiffData(dataCollectionModified);
+
+  console.log("col 2", ts.__collection.toJS());
   assert.equal(ts.getAll().count(),4, "collection should count 4 elts");
 
 });
@@ -199,7 +265,7 @@ QUnit.test("Test filter collections", function( assert ) {
   assert.equal(ts.getFiltered().count(),1, "filtered collection should count 1 elts");
 
   ts.resetFilter()
-  assert.ok(ts.getFiltered() === undefined, "filtered collection should be undefined");
+  assert.equal(ts.getFiltered().count(),4, "filtered collection should match collection");
 });
 
 
