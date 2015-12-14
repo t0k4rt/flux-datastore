@@ -145,10 +145,8 @@ class Sync {
     }
   }
 
-  __generateUrl(_route, _routeParams, _queryParams) {
-    let _params = params || {};
-    let _compiled = template(this.__routes[method]);
-
+  __generateUrl(_routeName, _routeParams = {}, _queryParams = {}) {
+    let _compiled = template(this.__routes[_routeName]);
     return this.__baseUrl + _compiled(_routeParams) + this.__generateQueryString(_queryParams);
   }
 }
