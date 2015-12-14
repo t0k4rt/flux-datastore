@@ -88,13 +88,13 @@ class SimpleStore extends EventEmitter {
   /********************/
   /**  Init scripts  **/
   /********************/
-  init({context} = {}) {
+  init({context, params} = {}) {
     if(!this.__initialized) {
       if(this.__sync) {
         window.setTimeout((function() { this.__initialized = false; }).bind(this), 1500);
         return this.__sync
           .context(context)
-          .fetchAll()
+          .fetchAll(params)
           .then(function(result){
             this.__initialized = true;
             return Promise.resolve(this.__loadData(result));
@@ -107,12 +107,12 @@ class SimpleStore extends EventEmitter {
     }
   }
 
-  initOne({id, context} = {}) {
+  initOne({id, context, params} = {}) {
     if(!this.__initialized) {
       if(this.__sync) {
         return this.__sync
           .context(context)
-          .fetch(id)
+          .fetch(id, params)
           .then(function(result){
             return Promise.resolve(this.__loadData([result]));
           }.bind(this))

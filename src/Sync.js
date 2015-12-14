@@ -39,13 +39,28 @@ class Sync {
       return {statusCode: xhr.status, message: "An unknown error occured"};
     }
   }
+  __generateQueryString(params) {
+    let qs = [];
+    for(let key in params) {
+      if(params.hasOwnProperty(key)) {
+        qs.push(key+"="+params[key]);
+      }
+    }
+    if(qs.length > 0) {
+      return "?"+qs.join("&");
+    }
+    else {
+      return "";
+    }
+  }
 
-  fetchAll() {
+  fetchAll(params = {}) {
     let _context = this.__context;
     this.__context = {};
+
     let resolveFn = function(resolve, reject) {
       this.__jquery.ajax({
-        url: this.__generateUrl('fetchAll', {}, _context),
+        url: this.__generateUrl('fetchAll', {}, _context)+this.__generateQueryString(params),
         dataType: 'json',
         method: 'GET',
         cache: false
@@ -60,12 +75,13 @@ class Sync {
     return new Promise(resolveFn.bind(this));
   }
 
-  fetch(id) {
+  fetch(id, params = {}) {
     let _context = this.__context;
     this.__context = {};
+
     let resolveFn = function(resolve, reject) {
       this.__jquery.ajax({
-        url: this.__generateUrl('fetch', { id: id }, _context),
+        url: this.__generateUrl('fetch', { id: id }, _context)+this.__generateQueryString(params),
         dataType: 'json',
         method: 'GET',
         cache: false
