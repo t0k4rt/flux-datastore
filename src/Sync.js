@@ -126,7 +126,7 @@ class Sync {
   delete(record, queryParams = {}) {
     let _context = this.__context;
     this.__context = {};
-    let url = this.__generateUrl("fetch", assign({id: record.get('id')}, _context), queryParams);
+    let url = this.__generateUrl("delete", assign({id: record.get('id')}, _context), queryParams);
     let resolveFn = function(resolve, reject) {
       this.__jquery.ajax({
         url: _url,
