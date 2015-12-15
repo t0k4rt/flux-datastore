@@ -123,7 +123,7 @@ class Sync {
     return new Promise(resolveFn.bind(this));
   }
 
-  delete(record) {
+  delete(record, queryParams = {}) {
     let _context = this.__context;
     this.__context = {};
     let url = this.__generateUrl("fetch", assign({id: record.get('id')}, _context), queryParams);
