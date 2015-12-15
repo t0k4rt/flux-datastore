@@ -127,7 +127,21 @@ class Sync {
     let _context = this.__context;
     this.__context = {};
     let url = this.__generateUrl("fetch", assign({id: record.get('id')}, _context), queryParams);
-    return this.http("DELETE", url);
+    let resolveFn = function(resolve, reject) {
+      this.__jquery.ajax({
+        url: _url,
+        dataType: 'json',
+        method: "DELETE",
+        cache: false
+      })
+      .fail(function(xhr, textStatus, err) {
+        reject(this.__getErrorMessage(xhr));
+      }.bind(this))
+      .done(function(data) {
+        resolve(record);
+      });
+    };
+    return new Promise(resolveFn.bind(this));
   }
 
   __generateQueryString(params) {
