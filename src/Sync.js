@@ -12,6 +12,7 @@ class Sync {
     this.__baseUrl = baseUrl;
     this.__jquery = (jquery) ? jquery : baseJQuery;
     this.__context = {};
+    this.__debug = true;
 
     this.__routes = {
       'fetchAll': '',
@@ -32,12 +33,17 @@ class Sync {
   }
 
   __getErrorMessage(xhr) {
+    let error = {};
     try {
       let errorResponse = JSON.parse(xhr.responseText);
-      return {statusCode: xhr.status, message: errorResponse.message, title: errorResponse.title, raw: errorResponse};
+      error = {statusCode: xhr.status, message: errorResponse.message, title: errorResponse.title, raw: errorResponse};
     } catch(e) {
-      return {statusCode: xhr.status, message: "An unknown error occured"};
+      error = {statusCode: xhr.status, message: "An unknown error occured"};
     }
+    if(this.__debug) {
+      console.error(error);
+    }
+    return error;
   }
 
   http(_method, _url, _data) {
@@ -126,7 +132,7 @@ class Sync {
   delete(record, queryParams = {}) {
     let _context = this.__context;
     this.__context = {};
-    let url = this.__generateUrl("delete", assign({id: record.get('id')}, _context), queryParams);
+    let _url = this.__generateUrl("delete", assign({id: record.get('id')}, _context), queryParams);
     let resolveFn = function(resolve, reject) {
       this.__jquery.ajax({
         url: _url,
