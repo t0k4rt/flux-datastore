@@ -15934,311 +15934,7 @@ exports.default = {
   Sync: _Sync2.default
 };
 
-},{"./Actions":23,"./Constants":24,"./Record":29,"./SimpleStore":30,"./Sync":31}],26:[function(require,module,exports){
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.ErrorActions = exports.ErrorStore = exports.ErrorRecord = undefined;
-
-var _ErrorActions2 = require('./ErrorActions');
-
-var _ErrorActions3 = _interopRequireDefault(_ErrorActions2);
-
-var _ErrorStore2 = require('./ErrorStore');
-
-var _ErrorStore3 = _interopRequireDefault(_ErrorStore2);
-
-var _Constants = require('../Constants');
-
-var _Constants2 = _interopRequireDefault(_Constants);
-
-var _Record = require('../Record');
-
-var _Record2 = _interopRequireDefault(_Record);
-
-var _flux = require('flux');
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-exports.default = new _flux.Dispatcher();
-
-var errorConstants = new _Constants2.default("error", {
-  create: "create",
-  delete: "delete",
-  dismiss: "dismiss",
-  dismissAll: "dismiss_all"
-});
-
-var d = new _flux.Dispatcher();
-
-var ErrorRecord = new _Record2.default({ message: null, ttl: 4000 });
-var _ErrorStore = new _ErrorStore3.default(ErrorRecord, errorConstants, d);
-var _ErrorActions = new _ErrorActions3.default(errorConstants, d);
-
-exports.default = {
-  ErrorRecord: ErrorRecord,
-  ErrorStore: _ErrorStore,
-  ErrorActions: _ErrorActions
-};
-exports.ErrorRecord = ErrorRecord;
-exports.ErrorStore = _ErrorStore;
-exports.ErrorActions = _ErrorActions;
-
-},{"../Constants":24,"../Record":29,"./ErrorActions":27,"./ErrorStore":28,"flux":4}],27:[function(require,module,exports){
-"use strict";
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var ErrorActions = (function () {
-  function ErrorActions(_constants, _dispatcher) {
-    _classCallCheck(this, ErrorActions);
-
-    this.constants = _constants;
-    this.dispatcher = _dispatcher;
-  }
-
-  _createClass(ErrorActions, [{
-    key: "create",
-    value: function create(_record) {
-      this.dispatcher.dispatch({
-        type: this.constants.actions.create,
-        record: _record
-      });
-    }
-  }, {
-    key: "delete",
-    value: function _delete(_record) {
-      this.dispatcher.dispatch({
-        type: this.constants.actions.delete,
-        record: _record
-      });
-    }
-  }, {
-    key: "dismissAll",
-    value: function dismissAll() {
-      this.dispatcher.dispatch({
-        type: this.constants.actions.dismissAll
-      });
-    }
-  }, {
-    key: "dismiss",
-    value: function dismiss(record) {
-      this.dispatcher.dispatch({
-        type: this.constants.actions.dismiss,
-        record: record
-      });
-    }
-  }]);
-
-  return ErrorActions;
-})();
-
-exports.default = ErrorActions;
-
-},{}],28:[function(require,module,exports){
-"use strict";
-
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-
-var _immutable = require("immutable");
-
-var _immutable2 = _interopRequireDefault(_immutable);
-
-var _events = require("events");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
-
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
-
-var _defaultEvents = {
-  change: 'change'
-};
-
-var _defaultSortFunction = function _defaultSortFunction(a, b) {
-  var valueA = undefined,
-      valueB = undefined;
-  if (this.sortKeys.length > 0) {
-    valueA = a.get(this.sortKeys[0]);
-    valueB = b.get(this.sortKeys[0]);
-  } else {
-    valueA = a.get("__cid");
-    valueB = b.get("__cid");
-  }
-
-  if (valueA === valueB) return 0;else return valueA > valueB ? 1 : -1;
-};
-
-var ErrorStore = (function (_EventEmitter) {
-  _inherits(ErrorStore, _EventEmitter);
-
-  function ErrorStore(record, constants, __dispatcher) {
-    _classCallCheck(this, ErrorStore);
-
-    var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(ErrorStore).call(this));
-
-    _this.constants = constants;
-    _this.record = record;
-
-    // sort
-    _this.sortKeys = ["__cid"];
-
-    // overridable base variables
-    _this.events = _defaultEvents;
-    _this.sortFunction = _defaultSortFunction;
-
-    // PRIVATE IMPORTANT !!!!!
-    _this.__counter = 0;
-    _this.__collection = _immutable2.default.Map();
-    _this.__dispatcher = __dispatcher;
-    _this.__dispatcher.register(_this.payloadHandler.bind(_this));
-    _this.__dict = _immutable2.default.Map();
-    return _this;
-  }
-
-  _createClass(ErrorStore, [{
-    key: "__add",
-    value: function __add(r) {
-      // on check que l'élément accepte les __cid
-      if (r.has("__cid")) {
-        // cid must be empty / null
-        if (!r.get("__cid")) {
-          // compute ttl
-          var ttl = undefined;
-          if (this.__collection.count() > 1) {
-            ttl = this.__collection.toList().last().get("ttl");
-            ttl += 500;
-          }
-
-          // set cid from internal collection counter
-          this.__counter = this.__counter + 1;
-          r = r.set("__cid", "c" + this.__counter);
-          if (ttl) {
-            r = r.set("ttl", ttl);
-          }
-          // Set map with __cid and record
-          this.__collection = this.__collection.set(r.get("__cid"), r);
-          // add item to dict to be able to find it from id
-          this.emit(this.events.change);
-          window.setTimeout((function () {
-            this.__remove(r);
-          }).bind(this), r.get("ttl"));
-        }
-      } else {
-        throw new Error("Model invalid, does not support __cid");
-      }
-    }
-  }, {
-    key: "__remove",
-    value: function __remove(r) {
-      var cid = r.get("__cid");
-      var id = r.get("id");
-      this.__collection = this.__collection.remove(cid);
-      this.emit(this.events.change);
-    }
-  }, {
-    key: "getAll",
-    value: function getAll() {
-      return this.__collection.sort(this.sortFunction.bind(this));
-    }
-  }, {
-    key: "create",
-    value: function create(_ref) {
-      var record = _ref.record;
-
-      this.__add(record);
-    }
-  }, {
-    key: "delete",
-    value: function _delete(_ref2) {
-      var record = _ref2.record;
-
-      if (record.get("__cid")) {
-        this.__remove(record);
-      } else {
-        throw new Error("Cannot remove this record from collection, no __cid.");
-      }
-    }
-  }, {
-    key: "dismissAll",
-    value: function dismissAll() {
-      this.__collection = _immutable2.default.Map();
-      this.emit(this.events.change);
-    }
-  }, {
-    key: "dismiss",
-    value: function dismiss(_ref3) {
-      var record = _ref3.record;
-
-      this.delete({ record: record });
-    }
-
-    /**********************/
-    /** listener section **/
-    /**********************/
-
-  }, {
-    key: "listenTo",
-    value: function listenTo(eventName, callback) {
-      this.on(eventName, callback);
-    }
-  }, {
-    key: "stopListeningTo",
-    value: function stopListeningTo(eventName, callback) {
-      this.removeListener(eventName, callback);
-    }
-  }, {
-    key: "listenToChanges",
-    value: function listenToChanges(callback) {
-      this.listenTo(this.events.change, callback);
-    }
-  }, {
-    key: "stopListeningToChanges",
-    value: function stopListeningToChanges(callback) {
-      this.stopListeningTo(this.events.change, callback);
-    }
-
-    /**************************/
-    /** action proxy handler **/
-    /**************************/
-
-  }, {
-    key: "payloadHandler",
-    value: function payloadHandler(payload) {
-      // get fn name from payload type
-      var fn = this.constants.__dict.get(payload.type);
-
-      // check if fn exists for current class
-      if (fn && Reflect.has(this, fn)) {
-        fn = Reflect.get(this, fn);
-        Reflect.apply(fn, this, [payload]);
-      } else {
-        console.error('no function found to handle ' + fn);
-      }
-    }
-  }]);
-
-  return ErrorStore;
-})(_events.EventEmitter);
-
-exports.default = ErrorStore;
-
-},{"events":2,"immutable":6}],29:[function(require,module,exports){
+},{"./Actions":23,"./Constants":24,"./Record":26,"./SimpleStore":27,"./Sync":28}],26:[function(require,module,exports){
 "use strict";
 
 var _immutable = require("immutable");
@@ -16271,7 +15967,7 @@ var Record = function Record(defaultValues, name) {
 
 module.exports = Record;
 
-},{"immutable":6}],30:[function(require,module,exports){
+},{"immutable":6}],27:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -16296,9 +15992,9 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var _defaultEvents = {
   change: 'change',
-  success: 'success',
   filter: 'filter',
   sort: 'sort',
+  success: 'success',
   error: 'error'
 };
 
@@ -16349,6 +16045,7 @@ var _defaultFilterFunction = function _defaultFilterFunction(value, key) {
   return result;
 };
 
+// GUID generator when there is no sync
 var guid = function guid() {
   function s4() {
     return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
@@ -16391,7 +16088,7 @@ var SimpleStore = (function (_EventEmitter) {
     _this.__filteredCollection;
     _this.__filtering = false;
     _this.__dispatcher = __dispatcher;
-    _this.__dispatcher.register(_this.payloadHandler.bind(_this));
+    _this.__dispatchToken = _this.__dispatcher.register(_this.payloadHandler.bind(_this));
     _this.__dict = _immutable2.default.Map();
     _this.__sync = sync;
     _this.__initialized = false;
@@ -16408,22 +16105,64 @@ var SimpleStore = (function (_EventEmitter) {
       var _ref = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
       var context = _ref.context;
+      var params = _ref.params;
 
       if (!this.__initialized) {
         if (this.__sync) {
-          this.__sync.context(context).fetchAll(this.__loadData.bind(this));
+          window.setTimeout((function () {
+            this.__initialized = false;
+          }).bind(this), 1500);
+          return this.__sync.context(context).fetchAll(params).then((function (result) {
+            this.__initialized = true;
+            return Promise.resolve(this.__loadData(result));
+          }).bind(this));
         } else {
           this.__initialized = true;
         }
+      } else {
+        return Promise.resolve(this.getAll());
       }
-      window.setTimeout((function () {
-        this.__initialized = false;
-      }).bind(this), 10000);
     }
   }, {
-    key: "__parseModel",
-    value: function __parseModel(data) {
-      return this.record.fromJS(data);
+    key: "initOne",
+    value: function initOne() {
+      var _ref2 = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+      var id = _ref2.id;
+      var context = _ref2.context;
+      var params = _ref2.params;
+
+      if (!this.__initialized) {
+        if (this.__sync) {
+          return this.__sync.context(context).fetch(id, params).then((function (result) {
+            return Promise.resolve(this.__loadData([result]));
+          }).bind(this)).then((function () {
+            return Promise.resolve(this.get(id));
+          }).bind(this));
+        } else {
+          this.__initialized = true;
+        }
+      } else {
+        return Promise.resolve(this.get(id));
+      }
+    }
+  }, {
+    key: "__loadData",
+    value: function __loadData(data) {
+      this.__collection = this.__collection.clear();
+      this.__dict = this.__dict.clear();
+      this.__parseCollection(data);
+
+      return this.getAll();
+    }
+  }, {
+    key: "__loadDataBis",
+    value: function __loadDataBis(data) {
+      this.__collection = _immutable2.default.Map();
+      this.__dict = _immutable2.default.Map();
+      this.__parseCollection(data);
+
+      return this.getAll();
     }
   }, {
     key: "__parseCollection",
@@ -16436,33 +16175,18 @@ var SimpleStore = (function (_EventEmitter) {
       });
     }
   }, {
-    key: "__parseCollectionWithSeq",
-    value: function __parseCollectionWithSeq(data) {
-      var parseModel = this.__parseModel;
-      this.__collection = _immutable2.default.Seq.of(data).flip().map(function (x) {
-        return "c" + x.toString();
-      }).flip();
-      this.__counter = this.__collection.coun();
+    key: "__parseModel",
+    value: function __parseModel(data) {
+      return this.record.fromJS(data);
     }
   }, {
-    key: "__loadData",
-    value: function __loadData(data) {
-      // on load data, dict and collection must be reset (or merged).
-      this.__collection = _immutable2.default.Map();
-      this.__dict = _immutable2.default.Map();
-
-      this.__parseCollection(data);
-      this.__initialized = true;
-      this.emit(this.events.change);
-    }
+    key: "__mergeData",
+    value: function __mergeData(data) {}
+    // todo use merge data api, but seems complicated
 
     /********************/
     /**  Base methods  **/
     /********************/
-
-    /**
-     * Add and index record to collection
-     */
 
   }, {
     key: "__add",
@@ -16471,53 +16195,32 @@ var SimpleStore = (function (_EventEmitter) {
       if (r.has("__cid")) {
         // cid must be empty / null
         if (!r.get("__cid")) {
+          // set cid from internal collection counter
+          this.__counter = this.__counter + 1;
+          r = r.set("__cid", "c" + this.__counter);
+
           // when there is no sync, there is no id so we forge one
-          // ! we do not override existing ids
-          if (!this.__sync && !r.has("id")) {
+          if (!this.__sync && !r.get("id")) {
             r = r.set("id", guid());
           }
 
-          // if the object already exists in local collection
-          if (!this.__dict.has(r.get("id").toString())) {
-            // what should we do ?
-            //console.warn("Record already exists in collection.");
+          // Set map with __cid and record
+          this.__collection = this.__collection.set(r.get("__cid"), r);
 
-            // we test if fetched object is different
-            var __cid = this.__dict.get(r.get("id").toString());
-            r = r.set("__cid", __cid);
-            if (!_immutable2.default.is(this.__collection.get(__cid), r)) {
-              // if records are different we update the collection
-              this.__collection = this.__collection.set(__cid, r);
-            }
-          } else {
-            // set cid from internal collection counter
-            this.__counter = this.__counter + 1;
-            r = r.set("__cid", "c" + this.__counter);
-
-            // Set map with __cid and record
-            this.__collection = this.__collection.set(r.get("__cid"), r);
-
-            // add item to dict to be able to find it from id
-            this.__addToDict(r);
-          }
+          // add item to dict to be able to find it from id
+          this.__addToDict(r);
+          //todo : migrate these events
+          //this.emit(this.events.success);
+          //this.emit(this.events.change);
         }
       } else {
-        throw new Error("Model invalid, does not support __cid");
-      }
-    }
-  }, {
-    key: "__addWithEmit",
-    value: function __addWithEmit(r) {
-      this.__add(r);
-      this.emit(this.events.success);
-      this.emit(this.events.change);
+          throw new Error("Model invalid, does not support __cid");
+        }
     }
   }, {
     key: "__edit",
     value: function __edit(r) {
       this.__collection = this.__collection.set(r.get("__cid"), r);
-      this.emit(this.events.success);
-      this.emit(this.events.change);
     }
   }, {
     key: "__remove",
@@ -16527,8 +16230,6 @@ var SimpleStore = (function (_EventEmitter) {
       var id = r.get("id").toString();
       this.__collection = this.__collection.remove(cid);
       this.__dict = this.__dict.remove(id);
-      this.emit(this.events.success);
-      this.emit(this.events.change);
     }
   }, {
     key: "__addToDict",
@@ -16541,11 +16242,7 @@ var SimpleStore = (function (_EventEmitter) {
       var id = r.get("id").toString();
       // check if record has not already been indexed
       if (this.__dict.has(id)) {
-        if (this.__dict.get(id) == r.get("__cid")) {
-          console.warn("Record has been already indexed: ", id);
-        } else {
-          throw new Error("Record with id :" + id + "does not match with index");
-        }
+        console.warn("Record has been already indexed.", id);
       } else {
         this.__dict = this.__dict.set(id, r.get("__cid"));
       }
@@ -16580,6 +16277,7 @@ var SimpleStore = (function (_EventEmitter) {
           return undefined;
         }
       }
+      throw Error("missing id");
     }
   }, {
     key: "getAll",
@@ -16609,26 +16307,33 @@ var SimpleStore = (function (_EventEmitter) {
   }, {
     key: "create",
     value: function create() {
-      var _ref2 = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+      var _ref3 = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
-      var record = _ref2.record;
-      var context = _ref2.context;
+      var record = _ref3.record;
+      var context = _ref3.context;
 
       this.__assertRecord(record);
-
       if (this.__sync) {
-        this.__sync.context(context).create(record, this.__addWithEmit.bind(this));
+        return this.__sync.context(context).create(record).then((function (record) {
+          this.__add(record);
+          this.emit(this.events.change);
+          this.emit(this.events.success);
+          return Promise.resolve(record);
+        }).bind(this)).catch((function (error) {
+          this.emit(this.events.error, error);
+        }).bind(this));
       } else {
-        this.__addWithEmit(record);
+        this.__add(record);
+        return Promise.resolve(record);
       }
     }
   }, {
     key: "update",
     value: function update() {
-      var _ref3 = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+      var _ref4 = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
-      var record = _ref3.record;
-      var context = _ref3.context;
+      var record = _ref4.record;
+      var context = _ref4.context;
 
       this.__assertRecord(record);
 
@@ -16641,33 +16346,49 @@ var SimpleStore = (function (_EventEmitter) {
       var originalRecord = this.__collection.get(record.get("__cid"));
       if (_immutable2.default.is(record, originalRecord)) {
         this.__edit(record);
-        return;
+        return Promise.resolve(record);
       }
 
       if (this.__sync) {
-        this.__sync.context(context).update(record, this.__edit.bind(this));
+        return this.__sync.context(context).update(record).then((function (record) {
+          this.__edit(record);
+          this.emit(this.events.change);
+          this.emit(this.events.success);
+          return Promise.resolve(record);
+        }).bind(this)).catch((function (error) {
+          this.emit(this.events.error, error);
+        }).bind(this));
       } else {
         this.__edit(record);
+        return Promise.resolve(record);
       }
     }
   }, {
     key: "delete",
     value: function _delete() {
-      var _ref4 = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+      var _ref5 = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
 
-      var record = _ref4.record;
-      var context = _ref4.context;
+      var record = _ref5.record;
+      var context = _ref5.context;
 
       this.__assertRecord(record);
 
       if (record.get("__cid") && record.get("id")) {
         if (this.__sync) {
-          this.__sync.context(context).delete(record, this.__remove.bind(this));
+          return this.__sync.context(context).delete(record).then((function (record) {
+            this.__remove(record);
+            this.emit(this.events.change);
+            this.emit(this.events.success);
+            return Promise.resolve(record);
+          }).bind(this)).catch((function (error) {
+            this.emit(this.events.error, error);
+          }).bind(this));
         } else {
           this.__remove(record);
+          return Promise.resolve(record);
         }
       } else {
-        throw new Error("Cannot remove this record from collection, no __cid nor id");
+        throw new Error("Cannot remove this record from collection, no __cid or id");
       }
     }
 
@@ -16677,9 +16398,9 @@ var SimpleStore = (function (_EventEmitter) {
 
   }, {
     key: "filter",
-    value: function filter(_ref5) {
-      var criterion = _ref5.criterion;
-      var keys = _ref5.keys;
+    value: function filter(_ref6) {
+      var criterion = _ref6.criterion;
+      var keys = _ref6.keys;
 
       this.filterStr = criterion.toString();
       this.filterKeys = keys;
@@ -16705,8 +16426,8 @@ var SimpleStore = (function (_EventEmitter) {
 
   }, {
     key: "sort",
-    value: function sort(_ref6) {
-      var keys = _ref6.keys;
+    value: function sort(_ref7) {
+      var keys = _ref7.keys;
 
       this.resetSort();
       this.sortKeys = keys || ["id"];
@@ -16776,7 +16497,7 @@ var SimpleStore = (function (_EventEmitter) {
 
 exports.default = SimpleStore;
 
-},{"events":2,"immutable":6}],31:[function(require,module,exports){
+},{"events":2,"immutable":6}],28:[function(require,module,exports){
 "use strict";
 
 var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
@@ -16797,8 +16518,6 @@ var _lodash = require("lodash.template");
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
-var _Error = require("./Error/Error");
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -16812,6 +16531,7 @@ var Sync = (function () {
     this.__baseUrl = baseUrl;
     this.__jquery = jquery ? jquery : _jquery2.default;
     this.__context = {};
+    this.__debug = true;
 
     this.__routes = {
       'fetchAll': '',
@@ -16833,95 +16553,152 @@ var Sync = (function () {
       return this;
     }
   }, {
+    key: "__getErrorMessage",
+    value: function __getErrorMessage(xhr) {
+      var error = {};
+      try {
+        var errorResponse = JSON.parse(xhr.responseText);
+        error = { statusCode: xhr.status, message: errorResponse.message, title: errorResponse.title, raw: errorResponse };
+      } catch (e) {
+        error = { statusCode: xhr.status, message: "An unknown error occured" };
+      }
+      if (this.__debug) {
+        console.error(error);
+      }
+      return error;
+    }
+  }, {
+    key: "http",
+    value: function http(_method, _url, _data) {
+      //todo : add data;
+      var resolveFn = function resolveFn(resolve, reject) {
+        this.__jquery.ajax({
+          url: _url,
+          dataType: 'json',
+          method: _method,
+          cache: false
+        }).fail((function (xhr, textStatus, err) {
+          reject(this.__getErrorMessage(xhr));
+        }).bind(this)).done(function (data) {
+          resolve(data);
+        });
+      };
+      return new Promise(resolveFn.bind(this));
+    }
+  }, {
     key: "fetchAll",
-    value: function fetchAll(success) {
-      return this.__jquery.ajax({
-        url: this.__generateUrl('fetchAll'),
-        dataType: 'json',
-        method: 'GET',
-        cache: false
-      }).fail(this.__syncError).done(function (data) {
-        success(data);
-      });
+    value: function fetchAll() {
+      var queryParams = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+      var _context = this.__context;
+      this.__context = {};
+      var url = this.__generateUrl("fetchAll", _context, queryParams);
+      return this.http("GET", url);
     }
   }, {
     key: "fetch",
-    value: function fetch(id, success) {
-      return this.__jquery.ajax({
-        url: this.__generateUrl('fetch', { id: id }),
-        dataType: 'json',
-        method: 'GET',
-        cache: false
-      }).fail(this.__syncError).done(function (data) {
-        success(data);
-      });
+    value: function fetch(id) {
+      var queryParams = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+      var _context = this.__context;
+      this.__context = {};
+      var url = this.__generateUrl("fetch", (0, _objectAssign2.default)({ id: id }, _context), queryParams);
+      return this.http("GET", url);
     }
   }, {
     key: "create",
-    value: function create(record, success) {
-      return this.__jquery.ajax({
-        url: this.__generateUrl('create'),
-        dataType: 'json',
-        method: 'POST',
-        data: record
-      }).fail(this.__syncError).done(function (_data) {
-        var data = _data;
-        // merge data from rest api
-        record = record.withMutations(function (_record) {
-          for (var prop in data) {
-            if (_record.has(prop) && data.hasOwnProperty(prop)) {
-              _record.set(prop, data[prop]);
+    value: function create(record) {
+      var _context = this.__context;
+      this.__context = {};
+      var resolveFn = function resolveFn(resolve, reject) {
+        this.__jquery.ajax({
+          url: this.__generateUrl('create', {}, _context),
+          dataType: 'json',
+          method: 'POST',
+          data: record
+        }).fail((function (xhr, textStatus, err) {
+          reject(this.__getErrorMessage(xhr));
+        }).bind(this)).done(function (_data) {
+          var data = _data;
+          // merge data from rest api
+          record = record.withMutations(function (_record) {
+            for (var prop in data) {
+              if (_record.has(prop) && data.hasOwnProperty(prop)) {
+                _record.set(prop, data[prop]);
+              }
             }
-          }
+          });
+          resolve(record);
         });
-        success(record);
-      });
+      };
+      return new Promise(resolveFn.bind(this));
     }
   }, {
     key: "update",
-    value: function update(record, success) {
-      return this.__jquery.ajax({
-        url: this.__generateUrl('update', { id: record.get('id') }),
-        dataType: 'json',
-        method: 'PUT',
-        data: record
-      }).fail(this.__syncError).done(function () {
-        success(record);
-      });
+    value: function update(record) {
+      var _context = this.__context;
+      this.__context = {};
+
+      var resolveFn = function resolveFn(resolve, reject) {
+        this.__jquery.ajax({
+          url: this.__generateUrl('update', { id: record.get('id') }, _context),
+          dataType: 'json',
+          method: 'PUT',
+          data: record
+        }).fail((function (xhr, textStatus, err) {
+          reject(this.__getErrorMessage(xhr));
+        }).bind(this)).done(function () {
+          resolve(record);
+        });
+      };
+      return new Promise(resolveFn.bind(this));
     }
   }, {
     key: "delete",
-    value: function _delete(record, success) {
-      return this.__jquery.ajax({
-        url: this.__generateUrl('delete', { id: record.get('id') }),
-        dataType: 'json',
-        method: 'DELETE'
-      }).fail(this.__syncError).done(function () {
-        success(record);
-      });
+    value: function _delete(record) {
+      var queryParams = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+      var _context = this.__context;
+      this.__context = {};
+      var _url = this.__generateUrl("delete", (0, _objectAssign2.default)({ id: record.get('id') }, _context), queryParams);
+      var resolveFn = function resolveFn(resolve, reject) {
+        this.__jquery.ajax({
+          url: _url,
+          dataType: 'json',
+          method: "DELETE",
+          cache: false
+        }).fail((function (xhr, textStatus, err) {
+          reject(this.__getErrorMessage(xhr));
+        }).bind(this)).done(function (data) {
+          resolve(record);
+        });
+      };
+      return new Promise(resolveFn.bind(this));
     }
   }, {
-    key: "__syncError",
-    value: function __syncError(xhr, textStatus, err) {
-      try {
-        var errMsg = JSON.parse(xhr.responseText);
-        _Error.ErrorActions.create(new _Error.ErrorRecord({ message: errMsg.message }));
-      } catch (e) {
-        _Error.ErrorActions.create(new _Error.ErrorRecord({ message: "An unknown error occured" }));
+    key: "__generateQueryString",
+    value: function __generateQueryString(params) {
+      var qs = [];
+      for (var key in params) {
+        if (params.hasOwnProperty(key)) {
+          qs.push(key + "=" + params[key]);
+        }
+      }
+      if (qs.length > 0) {
+        return "?" + qs.join("&");
+      } else {
+        return "";
       }
     }
   }, {
     key: "__generateUrl",
-    value: function __generateUrl(method, params) {
-      var _params = params || {};
-      var _context = this.__context;
-      var _compiled = (0, _lodash2.default)(this.__routes[method]);
+    value: function __generateUrl(_routeName) {
+      var _routeParams = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
-      if (_params.id) {
-        _context = (0, _objectAssign2.default)(_context, { id: _params.id });
-      }
+      var _queryParams = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
 
-      return this.__baseUrl + _compiled(_context);
+      var _compiled = (0, _lodash2.default)(this.__routes[_routeName]);
+      return this.__baseUrl + _compiled(_routeParams) + this.__generateQueryString(_queryParams);
     }
   }]);
 
@@ -16930,7 +16707,7 @@ var Sync = (function () {
 
 exports.default = Sync;
 
-},{"./Error/Error":26,"jquery":7,"lodash.template":14,"object-assign":21}],32:[function(require,module,exports){
+},{"jquery":7,"lodash.template":14,"object-assign":21}],29:[function(require,module,exports){
 "use strict";
 
 var _immutable = require("immutable");
@@ -16971,33 +16748,28 @@ var ts2 = new _DataStore.SimpleStore(tr, k, testDispatcher);
 
 var dataCollection = [];
 var i = 0;
-while (i < 10000) {
+while (i < 1000) {
   dataCollection.push({ id: i, a: "aaa", b: "bbb" });
   i++;
 }
 
-// let dataCollectionModified = [];
-// i = 0
-// while(i < 10000) {
-//   dataCollectionModified.push({id: i, a: "aba", b: "abb"});
-//   i++;
-// }
-ts2.__parseCollectionWithSeq(dataCollection);
-console.log(ts2.__collection.toJS());
+var dataCollectionModified = [];
+i = 0;
+while (i < 1000) {
+  dataCollectionModified.push({ id: i, a: "aba", b: "abb" });
+  i++;
+}
 
-// suite.add("test __parseCollection", function() {
-//   ts.__parseCollection(dataCollection);
-// })
-// .add("test __parseCollectionWithSeq", function() {
-//   ts2.__parseCollectionWithSeq(dataCollection);
-// })// add listeners
-// .on('cycle', function(event) {
-//   console.log(String(event.target));
-// })
-// .on('complete', function() {
-//   console.log('Fastest is ' + this.filter('fastest').pluck('name'));
-// })
-// // run async
-// .run({ 'async': true });
+suite.add("test __loadData", function () {
+  ts.__loadData(dataCollection);
+}).add("test __loadDataBis", function () {
+  ts2.__loadDataBis(dataCollection);
+}).on('cycle', function (event) {
+  console.log(String(event.target));
+}).on('complete', function () {
+  console.log('Fastest is ' + this.filter('fastest').pluck('name'));
+})
+// run async
+.run({ 'async': true });
 
-},{"../src/DataStore":25,"benchmark":1,"flux":4,"immutable":6}]},{},[32]);
+},{"../src/DataStore":25,"benchmark":1,"flux":4,"immutable":6}]},{},[29]);

@@ -41,12 +41,12 @@ while(i < 10000) {
   i++;
 }
 
-suite.add("test __parseCollection", function() {
-  ts.__parseCollection(dataCollection);
+suite.add("test __loadData", function() {
+  ts.__loadData(dataCollection);
 })
-.add("test __parseCollectionWithSeq", function() {
-  ts2.__parseCollectionWithSeq(dataCollection);
-})// add listeners
+.add("test __loadDataBis", function() {
+  ts2.__loadDataBis(dataCollection);
+})
 .on('cycle', function(event) {
   console.log(String(event.target));
 })

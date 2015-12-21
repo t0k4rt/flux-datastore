@@ -135,6 +135,13 @@ class SimpleStore extends EventEmitter {
 
     return this.getAll();
   }
+  __loadDataBis(data) {
+    this.__collection = Immutable.Map();
+    this.__dict = Immutable.Map();
+    this.__parseCollection(data);
+
+    return this.getAll();
+  }
 
   __parseCollection(data) {
     data.forEach((elt, index) => {
@@ -162,6 +169,10 @@ class SimpleStore extends EventEmitter {
     let diff = this.__computeDiff(data, this.idMap);
     this.__parseCollection(diff);
     return this.getAll();
+  }
+
+  __mergeData(data) {
+    //todo : do data merge here but it is complicated
   }
 
   /********************/
