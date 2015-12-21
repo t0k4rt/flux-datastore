@@ -38,6 +38,7 @@ let _defaultFilterFunction = function(value, key) {
   return result;
 };
 
+// GUID generator when there is no sync
 let guid = function() {
   function s4() {
     return Math.floor((1 + Math.random()) * 0x10000)
@@ -128,8 +129,8 @@ class SimpleStore extends EventEmitter {
   }
 
   __loadData(data) {
-    this.__collection = Immutable.Map();
-    this.__dict = Immutable.Map();
+    this.__collection = this.__collection.clear();
+    this.__dict = this.__dict.clear();
     this.__parseCollection(data);
 
     return this.getAll();
