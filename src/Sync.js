@@ -79,12 +79,12 @@ class Sync {
     return this.http("GET", url);
   }
 
-  create(record) {
+  create(record, queryParams = {}) {
     let _context = this.__context;
     this.__context = {};
     let resolveFn = function(resolve, reject) {
       this.__jquery.ajax({
-        url: this.__generateUrl('create', {}, _context),
+        url: this.__generateUrl('create', _context, queryParams),
         dataType: 'json',
         method: 'POST',
         data: record
@@ -108,13 +108,13 @@ class Sync {
     return new Promise(resolveFn.bind(this));
   }
 
-  update(record){
+  update(record, queryParams = {}){
     let _context = this.__context;
     this.__context = {};
 
     let resolveFn = function(resolve, reject) {
       this.__jquery.ajax({
-        url: this.__generateUrl('update', { id: record.get('id') }, _context),
+        url: this.__generateUrl('update', assign({id: record.get('id')},_context), queryParams),
         dataType: 'json',
         method: 'PUT',
         data: record
