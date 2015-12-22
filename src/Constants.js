@@ -11,12 +11,7 @@ class Constants {
     this.actions = Object.assign({
       create: "create",
       update: "update",
-      delete: "delete",
-      filter: "filter",
-      resetFilter: "reset_filter",
-      sort: "sort",
-      resetSort: "reset_sort",
-      reverse: "reverse"
+      delete: "delete"
     }, actions);
   }
 
