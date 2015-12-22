@@ -1,7 +1,11 @@
 "use strict";
 import Immutable from "immutable";
 import { Dispatcher } from "flux";
-import DataStore, {Record, Constants, SimpleStore, Actions} from "../src/DataStore";
+import DataStore, {Record, Constants, BaseStore, Actions} from "../src/DataStore";
+import { FilterableStore } from "../src/filterable/FilterableStore";
+import { SortableStore } from "../src/sortable/SortableStore";
+import { ToggleableStore } from "../src/toggleable/ToggleableStore";
+import { SelectableStore } from "../src/selectable/SelectableStore";
 import Benchmark from 'benchmark';
 
 let testDispatcher = new Dispatcher();
@@ -20,7 +24,7 @@ QUnit.test("Test __computeDiff function", function( assert ) {
     };
   let k = new Constants(namespace, actions);
   let tr = Record({id: null, a:1, b:2});
-  let ts = new SimpleStore(tr, k, testDispatcher);
+  let ts = new BaseStore(tr, k, testDispatcher);
 
   let dataCollection = [
     {id: 1, a:"aaa", b:"bbb"},
@@ -80,7 +84,7 @@ QUnit.test("Test store private methods", function( assert ) {
     };
   let k = new Constants(namespace, actions);
   let tr = Record({id: null, a:1, b:2});
-  let ts = new SimpleStore(tr, k, testDispatcher);
+  let ts = new BaseStore(tr, k, testDispatcher);
 
 
   let dataCollection = [
@@ -127,7 +131,7 @@ QUnit.test("Test refresh collection and merge", function( assert ) {
     };
   let k = new Constants(namespace, actions);
   let tr = Record({id: null, a:1, b:2});
-  let ts = new SimpleStore(tr, k, testDispatcher);
+  let ts = new BaseStore(tr, k, testDispatcher);
 
 
   let dataCollection = [
@@ -198,7 +202,7 @@ QUnit.test("Test CRUD", function( assert ) {
     };
   let k = new Constants(namespace, actions);
   let tr = Record({id: null, a:1, b:2});
-  let ts = new SimpleStore(tr, k, testDispatcher);
+  let ts = new BaseStore(tr, k, testDispatcher);
 
   let r1 = new tr({id: 1, a:"aaa", b:"bbb"});
   let r2 = new tr({id: 2, a:"bbb", b:"ccc"});
@@ -244,7 +248,10 @@ QUnit.test("Test filter collections", function( assert ) {
     };
   let k = new Constants(namespace, actions);
   let tr = Record({id: null, a:1, b:2});
-  let ts = new SimpleStore(tr, k, testDispatcher);
+
+  class TestStore {};
+  TestStore = FilterableStore(TestStore);
+  let ts = new TestStore(tr, k, testDispatcher);
   ts.triggerSearchAt = 0;
 
 
@@ -255,7 +262,8 @@ QUnit.test("Test filter collections", function( assert ) {
     {id: 4, a:"abc", b:"bcd"},
   ];
   ts.__parseCollection(dataCollection);
-  ts.filter({criterion: "b", keys: ["a"]})
+
+  ts.filter({criterion: "b", keys: ["a"]});
   assert.equal(ts.getFiltered().count(),2, "filtered collection should count 2 elts");
   ts.filter({criterion: "b", keys: ["a", "b"]})
   assert.equal(ts.getFiltered().count(),3, "filtered collection should count 3 elts");
@@ -263,11 +271,9 @@ QUnit.test("Test filter collections", function( assert ) {
   assert.equal(ts.getFiltered().count(),2, "filtered collection should count 2 elts");
   ts.filter({criterion: "bc", keys: ["a", "b"]})
   assert.equal(ts.getFiltered().count(),1, "filtered collection should count 1 elts");
-
-  ts.resetFilter()
+  ts.resetFilter();
   assert.equal(ts.getFiltered().count(),4, "filtered collection should match collection");
 });
-
 
 QUnit.test("Test sort collections", function( assert ) {
   let namespace = "k";
@@ -283,7 +289,11 @@ QUnit.test("Test sort collections", function( assert ) {
     };
   let k = new Constants(namespace, actions);
   let tr = Record({id: null, a:1, b:2});
-  let ts = new SimpleStore(tr, k, testDispatcher);
+
+  class TestStore {};
+  TestStore = SortableStore(FilterableStore(TestStore));
+  let ts = new TestStore(tr, k, testDispatcher);
+
   ts.triggerSearchAt = 0;
 
 
@@ -305,6 +315,86 @@ QUnit.test("Test sort collections", function( assert ) {
   ts.sort({keys:["a"]});
   assert.equal(ts.getAll().first().get("id"),1, "first item of sorted collection should be 1");
   assert.equal(ts.getAll().last().get("id"),3, "last item of sorted collection should be 3");
+});
+
+
+QUnit.test("Test toggleable collections", function( assert ) {
+  let namespace = "k";
+  let actions = {
+      create: "create",
+      update: "update",
+      delete: "delete",
+      filter: "filter",
+      toggle: "toggle",
+      resetFilter: "reset_filter",
+      sort: "sort",
+      resetSort: "reset_sort",
+      reverse: "reverse"
+    };
+  let k = new Constants(namespace, actions);
+  let tr = Record({id: null, a:1, b:2, enabled: false});
+
+  class TestStore {};
+  TestStore = ToggleableStore(SortableStore(FilterableStore(TestStore)));
+  let ts = new TestStore(tr, k, testDispatcher);
+
+  let dataCollection = [
+    {id: 1, a:"aaa", b:"bbb"},
+    {id: 2, a:"bbb", b:"ccc"},
+    {id: 3, a:"ccc", b:"ddd"},
+    {id: 4, a:"abc", b:"bcd"},
+  ];
+  ts.__parseCollection(dataCollection);
+
+  let r1 = ts.get(1);
+  ts.toggle({record: r1});
+  r1 = ts.get(1);
+  assert.ok(r1.get("enabled"));
+
+});
+
+
+QUnit.test("Test selectable collections", function( assert ) {
+  let namespace = "k";
+  let actions = {
+      create: "create",
+      update: "update",
+      delete: "delete",
+      filter: "filter",
+      toggle: "toggle",
+      select: "select",
+      resetFilter: "reset_filter",
+      sort: "sort",
+      resetSort: "reset_sort",
+      reverse: "reverse"
+    };
+  let k = new Constants(namespace, actions);
+  let tr = Record({id: null, a:1, b:2, enabled: false});
+
+  class TestStore {};
+  TestStore = SelectableStore(SortableStore(FilterableStore(TestStore)));
+  let ts = new TestStore(tr, k, testDispatcher);
+
+  let dataCollection = [
+    {id: 1, a:"aaa", b:"bbb"},
+    {id: 2, a:"bbb", b:"ccc"},
+    {id: 3, a:"ccc", b:"ddd"},
+    {id: 4, a:"abc", b:"bcd"},
+  ];
+  ts.__parseCollection(dataCollection);
+
+  ts.select({record: ts.get(1)});
+  ts.select({record: ts.get(3)});
+
+  assert.equal(ts.getSelection().count(), 2);
+
+  ts.deselect({record: ts.get(3)});
+  assert.equal(ts.getSelection().count(), 1);
+
+  ts.deselectAll();
+  assert.equal(ts.getSelection().count(), 0);
+  ts.selectAll();
+  assert.equal(ts.getSelection().count(), 4);
 });
 
 

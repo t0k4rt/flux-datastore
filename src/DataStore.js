@@ -3,15 +3,15 @@
 import Actions from './Actions';
 import Constants from './Constants';
 import Record from './Record';
-import SimpleStore from './SimpleStore';
+import BaseStore from './BaseStore';
 import Sync from './Sync';
 
-export { Actions, Constants, SimpleStore, Record, Sync };
+export { Actions, Constants, BaseStore, Record, Sync };
 
 export default {
   Actions: Actions,
   Constants: Constants,
   Record: Record,
-  SimpleStore: SimpleStore,
+  BaseStore: BaseStore,
   Sync: Sync
 };
