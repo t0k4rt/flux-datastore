@@ -373,6 +373,7 @@ QUnit.test("Test selectable collections", function( assert ) {
 
   class TestStore {};
   TestStore = SelectableStore(SortableStore(FilterableStore(TestStore)));
+
   let ts = new TestStore(tr, k, testDispatcher);
 
   let dataCollection = [
