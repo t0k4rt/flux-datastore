@@ -385,11 +385,13 @@ QUnit.test("Test selectable collections", function( assert ) {
   ts.__parseCollection(dataCollection);
 
   ts.select({record: ts.get(1)});
-  ts.select({record: ts.get(3)});
+  assert.ok(ts.isSelected(ts.get(1)));
 
+  ts.select({record: ts.get(3)});
   assert.equal(ts.getSelection().count(), 2);
 
   ts.deselect({record: ts.get(3)});
+  assert.notOk(ts.isSelected(ts.get(3)));
   assert.equal(ts.getSelection().count(), 1);
 
   ts.deselectAll();
