@@ -1,5 +1,5 @@
 "use strict";
-export * from "./SortableStore";
-export * from "./SortableActions";
-export * from "./SortableConstants";
-
+import {SortableStore} from "./SortableStore";
+import {SortableActions} from "./SortableActions";
+import {SortableConstants} from "./SortableConstants";
+export {SortableStore, SortableActions, SortableConstants};

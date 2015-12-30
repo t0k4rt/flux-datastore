@@ -1,5 +1,5 @@
 "use strict";
-export * from "./ToggleableStore";
-export * from "./ToggleableActions";
-export * from "./ToggleableConstants";
-
+import {ToggleableStore} from "./ToggleableStore";
+import {ToggleableActions} from "./ToggleableActions";
+import {ToggleableConstants} from "./ToggleableConstants";
+export {ToggleableStore, ToggleableActions, ToggleableConstants};
