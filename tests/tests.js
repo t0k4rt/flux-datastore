@@ -2,10 +2,10 @@
 import Immutable from "immutable";
 import { Dispatcher } from "flux";
 import DataStore, {Record, Constants, BaseStore, Actions} from "../src/DataStore";
-import { FilterableStore } from "../src/filterable/FilterableStore";
-import { SortableStore } from "../src/sortable/SortableStore";
-import { ToggleableStore } from "../src/toggleable/ToggleableStore";
-import { SelectableStore } from "../src/selectable/SelectableStore";
+import { FilterableStore } from "../src/filterable/FilterableBehavior";
+import { SortableStore } from "../src/sortable/SortableBehavior";
+import { ToggleableStore } from "../src/toggleable/ToggleableBehavior";
+import { SelectableStore } from "../src/selectable/SelectableBehavior";
 import Benchmark from 'benchmark';
 
 let testDispatcher = new Dispatcher();

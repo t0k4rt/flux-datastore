@@ -1,5 +1,5 @@
 "use strict";
-export default {
+export let FilterableConstants = {
   filter: "filter",
   resetFilter: "reset_filter"
 }
