@@ -92,6 +92,7 @@ class BaseStore extends EventEmitter {
 
     return this.getAll();
   }
+
   __loadDataBis(data) {
     this.__collection = Immutable.Map();
     this.__dict = Immutable.Map();
@@ -344,5 +345,13 @@ class BaseStore extends EventEmitter {
     }
   }
 }
+
+BaseStore.compose = (behaviors) => {
+    return behaviors.reduce(
+      function(a, b) {
+        return b(a);
+      },
+    BaseStore);
+  };
 
 export default BaseStore

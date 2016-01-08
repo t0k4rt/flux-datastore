@@ -249,8 +249,8 @@ QUnit.test("Test filter collections", function( assert ) {
   let k = new Constants(namespace, actions);
   let tr = Record({id: null, a:1, b:2});
 
-  class TestStore {};
-  TestStore = FilterableStore(TestStore);
+  let TestStore = BaseStore.compose([SelectableStore, FilterableStore, SortableStore, ToggleableStore]);
+
   let ts = new TestStore(tr, k, testDispatcher);
   ts.triggerSearchAt = 0;
 
@@ -290,8 +290,8 @@ QUnit.test("Test sort collections", function( assert ) {
   let k = new Constants(namespace, actions);
   let tr = Record({id: null, a:1, b:2});
 
-  class TestStore {};
-  TestStore = SortableStore(FilterableStore(TestStore));
+  let TestStore = BaseStore.compose([SelectableStore, FilterableStore, SortableStore, ToggleableStore]);
+
   let ts = new TestStore(tr, k, testDispatcher);
 
   ts.triggerSearchAt = 0;
@@ -334,8 +334,9 @@ QUnit.test("Test toggleable collections", function( assert ) {
   let k = new Constants(namespace, actions);
   let tr = Record({id: null, a:1, b:2, enabled: false});
 
-  class TestStore {};
-  TestStore = ToggleableStore(SortableStore(FilterableStore(TestStore)));
+
+  let TestStore = BaseStore.compose([SelectableStore, FilterableStore, SortableStore, ToggleableStore]);
+
   let ts = new TestStore(tr, k, testDispatcher);
 
   let dataCollection = [
@@ -371,8 +372,8 @@ QUnit.test("Test selectable collections", function( assert ) {
   let k = new Constants(namespace, actions);
   let tr = Record({id: null, a:1, b:2, enabled: false});
 
-  class TestStore {};
-  TestStore = SelectableStore(SortableStore(FilterableStore(TestStore)));
+
+  let TestStore = BaseStore.compose([SelectableStore, FilterableStore, SortableStore]);
 
   let ts = new TestStore(tr, k, testDispatcher);
 
@@ -401,5 +402,45 @@ QUnit.test("Test selectable collections", function( assert ) {
 });
 
 
+QUnit.test("Test multiples behaviors", function( assert ) {
+  let namespace = "k";
+  let actions = {
+      create: "create",
+      update: "update",
+      delete: "delete",
+      filter: "filter",
+      toggle: "toggle",
+      select: "select",
+      resetFilter: "reset_filter",
+      sort: "sort",
+      resetSort: "reset_sort",
+      reverse: "reverse"
+    };
+  let k = new Constants(namespace, actions);
+  let tr = Record({id: null, a:1, b:2, enabled: false});
 
+  let TestStore = BaseStore.compose([SelectableStore, FilterableStore, SortableStore]);
+
+  let ts = new TestStore(tr, k, testDispatcher);
+
+  let dataCollection = [
+    {id: 1, a:"aaa", b:"bbb"},
+    {id: 2, a:"bbb", b:"ccc"},
+    {id: 3, a:"ccc", b:"ddd"},
+    {id: 4, a:"abc", b:"bcd"},
+  ];
+  ts.__parseCollection(dataCollection);
+
+  ts.select({record: ts.get(1)});
+  assert.ok(ts.isSelected(ts.get(1)));
+
+  ts.select({record: ts.get(3)});
+  assert.equal(ts.getSelection().count(), 2);
+
+  ts.deselect({record: ts.get(3)});
+  assert.notOk(ts.isSelected(ts.get(3)));
+  assert.equal(ts.getSelection().count(), 1);
+
+  assert.ok(ts.getFiltered().count() == ts.getAll().count());
+});
 

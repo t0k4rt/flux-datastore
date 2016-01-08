@@ -1,7 +1,7 @@
 "use strict";
 import BaseStore from "../BaseStore";
 
-export let ToggleableStore = ComposedStore => class extends BaseStore {
+export let ToggleableStore = ComposedStore => class extends ComposedStore {
 
   toggle({record, context} = {}) {
     console.log("record", record);

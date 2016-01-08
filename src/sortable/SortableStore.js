@@ -18,7 +18,7 @@ let _defaultSortFunction = function(a, b) {
     return valueA > valueB ? 1 : -1;
 };
 
-export let SortableStore = ComposedStore => class extends BaseStore {
+export let SortableStore = ComposedStore => class extends ComposedStore {
 
   constructor(record, constants, __dispatcher, sync) {
     super(record, constants, __dispatcher, sync);

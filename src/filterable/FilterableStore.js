@@ -15,7 +15,7 @@ let _defaultFilterFunction = function(value, key) {
 };
 
 
-export let FilterableStore = ComposedStore => class extends BaseStore {
+export let FilterableStore = ComposedStore => class extends ComposedStore {
 
   constructor(record, constants, __dispatcher, sync) {
     super(record, constants, __dispatcher, sync);

@@ -2,7 +2,7 @@
 import BaseStore from "../BaseStore";
 import Immutable from "immutable";
 
-export let SelectableStore = ComposedStore => class extends BaseStore {
+export let SelectableStore = ComposedStore => class extends ComposedStore {
 
   constructor(record, constants, __dispatcher, sync) {
     super(record, constants, __dispatcher, sync);
