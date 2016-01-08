@@ -58,7 +58,7 @@ export let FilterableStore = ComposedStore => class extends ComposedStore {
       }
   }
 
-  _filter({criterion, keys}) {
+  old_filter({criterion, keys}) {
     this.filterStr = criterion.toString();
       this.filterKeys = keys;
       if(this.__filtering === true && this.filterStr.length === 0) {
