@@ -1,7 +1,6 @@
 "use strict";
-import Actions from "../Actions";
 
-export let ToggleableActions = ComposedActions => class extends Actions {
+export let ToggleableActions = ComposedActions => class extends ComposedActions {
 
   toggle(_record, _context) {
     this.dispatcher.dispatch({

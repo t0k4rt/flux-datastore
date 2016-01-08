@@ -347,11 +347,14 @@ class BaseStore extends EventEmitter {
 }
 
 BaseStore.compose = (behaviors) => {
-    return behaviors.reduce(
-      function(a, b) {
-        return b(a);
-      },
-    BaseStore);
-  };
+  if(!Array.isArray(behaviors)) {
+    throw new Error("behaviors must be an array");
+  }
+  return behaviors.reduce(
+    function(a, b) {
+      return b(a);
+    },
+  BaseStore);
+};
 
 export default BaseStore

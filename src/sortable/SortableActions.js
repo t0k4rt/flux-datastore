@@ -1,7 +1,6 @@
 "use strict";
-import Actions from "../Actions";
 
-export let SortableActions = ComposedActions => class extends Actions {
+export let SortableActions = ComposedActions => class extends ComposedActions {
   sort(_keys) {
     this.dispatcher.dispatch({
       namespace: this.constants.namespace,

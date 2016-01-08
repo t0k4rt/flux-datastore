@@ -1,7 +1,6 @@
 "use strict";
-import Actions from "../Actions";
 
-export let FilterableActions = ComposedActions => class extends Actions {
+export let FilterableActions = ComposedActions => class extends ComposedActions {
 
   filter(_criterion, _keys) {
     this.dispatcher.dispatch({

@@ -1,7 +1,7 @@
 "use strict";
 import Actions from "../Actions";
 
-export let SelectableActions = ComposedActions => class extends Actions {
+export let SelectableActions = ComposedActions => class extends ComposedActions {
   selectAll() {
     this.dispatcher.dispatch({
       namespace: this.constants.namespace,

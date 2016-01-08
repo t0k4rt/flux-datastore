@@ -34,4 +34,15 @@ class Actions {
   }
 }
 
+Actions.compose = (behaviors) => {
+  if(!Array.isArray(behaviors)) {
+    throw new Error("behaviors must be an array");
+  }
+  return behaviors.reduce(
+    function(a, b) {
+      return b(a);
+    },
+  Actions);
+};
+
 export default Actions
