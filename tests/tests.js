@@ -263,13 +263,13 @@ QUnit.test("Test filter collections", function( assert ) {
   ];
   ts.__parseCollection(dataCollection);
 
-  ts.filter({criterion: "b", keys: ["a"]});
+  ts.__filter({criterion: "b", keys: ["a"]});
   assert.equal(ts.getFiltered().count(),2, "filtered collection should count 2 elts");
-  ts.filter({criterion: "b", keys: ["a", "b"]})
+  ts.__filter({criterion: "b", keys: ["a", "b"]})
   assert.equal(ts.getFiltered().count(),3, "filtered collection should count 3 elts");
-  ts.filter({criterion: "d", keys: ["a", "b"]})
+  ts.__filter({criterion: "d", keys: ["a", "b"]})
   assert.equal(ts.getFiltered().count(),2, "filtered collection should count 2 elts");
-  ts.filter({criterion: "bc", keys: ["a", "b"]})
+  ts.__filter({criterion: "bc", keys: ["a", "b"]})
   assert.equal(ts.getFiltered().count(),1, "filtered collection should count 1 elts");
   ts.resetFilter();
   assert.equal(ts.getFiltered().count(),4, "filtered collection should match collection");

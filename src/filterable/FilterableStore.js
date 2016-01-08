@@ -28,6 +28,10 @@ export let FilterableStore = ComposedStore => class extends ComposedStore {
     this.__filteredCollection;
     this.__filtering = false;
     this.__debouncedelay = 200;
+    // debounce filter function
+    this.filter = debounce(function({criterion, keys}) {
+      this.__filter({criterion, keys})
+    }, this.__debouncedelay).bind(this);
   }
 
   getFiltered() {
@@ -43,7 +47,18 @@ export let FilterableStore = ComposedStore => class extends ComposedStore {
   /** filter collection methods **/
   /*******************************/
 
-  filter({criterion, keys}) {
+  __filter({criterion, keys}) {
+    this.filterStr = criterion.toString();
+      this.filterKeys = keys;
+      if(this.filterStr.length === 0) {
+        this.resetFilter();
+      } else if(this.filterStr.length > 0) {
+        this.emit(this.events.filter);
+        this.__filtering = true;
+      }
+  }
+
+  _filter({criterion, keys}) {
     this.filterStr = criterion.toString();
       this.filterKeys = keys;
       if(this.__filtering === true && this.filterStr.length === 0) {
@@ -52,15 +67,6 @@ export let FilterableStore = ComposedStore => class extends ComposedStore {
         this.emit(this.events.filter);
         this.__filtering = true;
       }
-
-  }
-
-  debouncedFilter({criterion, keys}) {
-    let debounced =  debounce(function(criterion, keys) {
-      this.filter({criterion, keys})
-    }, this.__debouncedelay).bind(this);
-
-    debounced.call(this, criterion, keys);
   }
 
   resetFilter() {
