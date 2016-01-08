@@ -442,5 +442,10 @@ QUnit.test("Test multiples behaviors", function( assert ) {
   assert.equal(ts.getSelection().count(), 1);
 
   assert.ok(ts.getFiltered().count() == ts.getAll().count());
+
+  // with sortable behavior, __collection should resolve to __collection__
+  ts.__collection__ = Immutable.Map();
+  assert.ok(ts.getAll().count() == 0, "with sortable behavior, __collection should resolve to __collection__");
+  assert.ok(ts.getFiltered().count() == 0, "with sortable behavior, __collection should resolve to __collection__");
 });
 
