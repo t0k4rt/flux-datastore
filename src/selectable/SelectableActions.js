@@ -1,5 +1,4 @@
 "use strict";
-import Actions from "../Actions";
 
 export let SelectableActions = ComposedActions => class extends ComposedActions {
   selectAll() {
