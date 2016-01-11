@@ -1,4 +1,4 @@
 "use strict";
-export default {
+export let ToggleableConstants = {
     "toggle":"toggle"
 }

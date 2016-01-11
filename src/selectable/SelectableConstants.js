@@ -1,6 +1,6 @@
 "use strict";
 
-export default {
+export let SelectableConstants = {
     "select":"select",
     "deselect":"deselect",
     "selectAll":"select_all",

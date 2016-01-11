@@ -27,16 +27,14 @@ export let SelectableStore = ComposedStore => class extends ComposedStore {
         .context(context)
         .fetchAll(params)
         .then(function(result){
+          let records = [];
           result.forEach(function(elt) {
             if(elt.hasOwnProperty(this.idMap)) {
-
-              let record = this.get(elt[this.idMap]);
-              if(record) {
-                this.select(record);
-              }
+              records.push(this.get(elt[this.idMap]));
             }
-          })
-          return Promise.resolve(this.__loadData(result));
+          });
+          this.selectMultiple({records: records})
+
         }.bind(this));
     }
   }
@@ -51,22 +49,40 @@ export let SelectableStore = ComposedStore => class extends ComposedStore {
     this.emit("select");
   }
 
-  select({record}) {
-    if(record && record.__cid && !this.__selection.has(record.__cid)) {
-      this.__selection = this.__selection.set(record.__cid, record);
-      this.emit("select");
+  selectMultiple({records}) {
+    records.forEach(function(record) {
+      this.__select(record);
+    });
+    this.emit("select");
+  }
+
+  __select(record) {
+    if(record && record.__cid) {
+      if(!this.__selection.has(record.__cid)) {
+        this.__selection = this.__selection.set(record.__cid, record);
+      }
     } else {
-      console.error("Record exists");
+      throw new Error("Bad record");
     }
   }
 
-  deselect({record}) {
+  select({record}) {
+    this.__select(record);
+    this.emit("select");
+  }
+
+  __deselect(record) {
     if(record.__cid && this.__selection.has(record.__cid)) {
       this.__selection = this.__selection.delete(record.__cid);
       this.emit("select");
     } else {
-      console.error("Could not find record");
+      throw new Error("Cannot deselect record with id: "+record.id +", could not find record in selection.");
     }
+  }
+
+  deselect({record}) {
+    this.__deselect(record);
+    this.emit("select");
   }
 };
 
