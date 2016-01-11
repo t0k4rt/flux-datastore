@@ -9,7 +9,7 @@ export let ToggleableStore = ComposedStore => class extends ComposedStore {
       let _record = record.set("enabled", !record.get("enabled"));
       this.update({record: _record, context: context});
     } else {
-      throw new Error("Record does not have enabled property");
+      throw new Error(`Record with id ${record.id} does not have enabled property`);
     }
   }
 };

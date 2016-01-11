@@ -76,7 +76,7 @@ export let SelectableStore = ComposedStore => class extends ComposedStore {
       this.__selection = this.__selection.delete(record.__cid);
       this.emit("select");
     } else {
-      throw new Error("Cannot deselect record with id: "+record.id +", could not find record in selection.");
+      throw new Error(`Cannot deselect record with id ${record.id}, could not find record in selection.`);
     }
   }
 

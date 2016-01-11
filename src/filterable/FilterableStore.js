@@ -40,7 +40,6 @@ export let FilterableStore = ComposedStore => class extends ComposedStore {
   }
 
   getFiltered() {
-    console.log("isfiltering", this.__filtering);
     if(this.__filtering) {
       return this.__collection.filter(this.filterFunction.bind(this));
     } else {
@@ -59,7 +58,7 @@ export let FilterableStore = ComposedStore => class extends ComposedStore {
       this.resetFilter();
     } else {
       this.__filtering = true;
-      this.__emitFilter;
+      this.__emitFilter();
     }
   }
 
