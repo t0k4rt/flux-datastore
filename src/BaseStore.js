@@ -85,6 +85,30 @@ class BaseStore extends EventEmitter {
     }
   }
 
+  refresh({record, context, params} = {}) {
+    let id = record.get("id");
+    if(this.__sync) {
+      return this.__sync
+        .context(context)
+        .fetch(id, params)
+        .then(function(result){
+          let newRecord = this.__parseModel(result);
+          let oldRecord = this.get(id);
+          // we check that record already exists
+          if(oldRecord) {
+            //copy old record cid to new record cid.
+            this.__edit(newRecord.set("__cid", oldRecord.get("__cid")));
+          } else {
+            // if record not exists we add it to collection
+            this.__add(newRecord);
+          }
+          return Promise.resolve(this.get(id));
+        }.bind(this));
+    } else {
+      return Promise.resolve(this.get(id));
+    }
+  }
+
   __loadData(data) {
     this.__collection = this.__collection.clear();
     this.__dict = this.__dict.clear();
