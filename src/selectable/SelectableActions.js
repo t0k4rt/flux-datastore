@@ -5,7 +5,6 @@ export let SelectableActions = ComposedActions => class extends ComposedActions 
     this.dispatcher.dispatch({
       namespace: this.constants.namespace,
       type: this.constants.actions.selectAll,
-      keys: _keys
     })
   }
 
@@ -13,7 +12,6 @@ export let SelectableActions = ComposedActions => class extends ComposedActions 
     this.dispatcher.dispatch({
       namespace: this.constants.namespace,
       type: this.constants.actions.deselectAll,
-      keys: _keys
     })
   }
 
@@ -45,7 +43,7 @@ export let SelectableActions = ComposedActions => class extends ComposedActions 
     this.dispatcher.dispatch({
       namespace: this.constants.namespace,
       type: this.constants.actions.deselectMultiple,
-      record: _records
+      records: _records
     })
   }
 };

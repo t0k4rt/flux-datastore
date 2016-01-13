@@ -52,7 +52,7 @@ export let SelectableStore = ComposedStore => class extends ComposedStore {
   selectMultiple({records}) {
     records.forEach(function(record) {
       this.__select(record);
-    });
+    }, this);
     this.emit("select");
   }
 
@@ -88,7 +88,7 @@ export let SelectableStore = ComposedStore => class extends ComposedStore {
   deselectMultiple({records}) {
     records.forEach(function(record) {
       this.__deselect(record);
-    });
+    }, this);
     this.emit("select");
   }
 
