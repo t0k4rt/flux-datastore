@@ -84,6 +84,14 @@ export let SelectableStore = ComposedStore => class extends ComposedStore {
     this.__deselect(record);
     this.emit("select");
   }
+
+  deselectMultiple({records}) {
+    records.forEach(function(record) {
+      this.__deselect(record);
+    });
+    this.emit("select");
+  }
+
 };
 
 
