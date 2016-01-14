@@ -3,23 +3,23 @@
 export let SortableActions = ComposedActions => class extends ComposedActions {
   sort(_keys) {
     this.__dispatcher.dispatch({
-      namespace: this.constants.namespace,
-      type: this.constants.actions.sort,
+      namespace: this.__constants.namespace,
+      type: this.__constants.actions.sort,
       keys: _keys
     })
   }
 
   resetSort() {
     this.__dispatcher.dispatch({
-      namespace: this.constants.namespace,
-      type: this.constants.actions.resetSort,
+      namespace: this.__constants.namespace,
+      type: this.__constants.actions.resetSort,
     })
   }
 
   reverse() {
     this.__dispatcher.dispatch({
-      namespace: this.constants.namespace,
-      type: this.constants.actions.reverse,
+      namespace: this.__constants.namespace,
+      type: this.__constants.actions.reverse,
     })
   }
 };
