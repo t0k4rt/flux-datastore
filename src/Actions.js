@@ -42,7 +42,7 @@ class Actions {
       // if we have to wait for something
       if(this.__waitFor.count()>0) {
         // we register a callback function
-        this.dispatcher.register(function(payload){
+        this.__dispatcher.register(function(payload){
           if(this.__waitFor.has(payload.type)) {
             // we get the token from the payload
             let token = this.__waitFor.get(payload.type)

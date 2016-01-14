@@ -3,7 +3,7 @@
 export let FilterableActions = ComposedActions => class extends ComposedActions {
 
   filter(_criterion, _keys) {
-    this.dispatcher.dispatch({
+    this.__dispatcher.dispatch({
       namespace: this.constants.namespace,
       type: this.constants.actions.filter,
       criterion: _criterion,
@@ -12,7 +12,7 @@ export let FilterableActions = ComposedActions => class extends ComposedActions 
   }
 
   resetFilter() {
-    this.dispatcher.dispatch({
+    this.__dispatcher.dispatch({
       namespace: this.constants.namespace,
       type: this.constants.actions.resetFilter,
     })

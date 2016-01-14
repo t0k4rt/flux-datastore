@@ -2,21 +2,21 @@
 
 export let SelectableActions = ComposedActions => class extends ComposedActions {
   selectAll() {
-    this.dispatcher.dispatch({
+    this.__dispatcher.dispatch({
       namespace: this.constants.namespace,
       type: this.constants.actions.selectAll,
     })
   }
 
   deselectAll() {
-    this.dispatcher.dispatch({
+    this.__dispatcher.dispatch({
       namespace: this.constants.namespace,
       type: this.constants.actions.deselectAll,
     })
   }
 
   select(_record) {
-    this.dispatcher.dispatch({
+    this.__dispatcher.dispatch({
       namespace: this.constants.namespace,
       type: this.constants.actions.select,
       record: _record
@@ -24,7 +24,7 @@ export let SelectableActions = ComposedActions => class extends ComposedActions 
   }
 
   selectMultiple(_records) {
-    this.dispatcher.dispatch({
+    this.__dispatcher.dispatch({
       namespace: this.constants.namespace,
       type: this.constants.actions.selectMultiple,
       records: _records
@@ -32,7 +32,7 @@ export let SelectableActions = ComposedActions => class extends ComposedActions 
   }
 
   deselect(_record) {
-    this.dispatcher.dispatch({
+    this.__dispatcher.dispatch({
       namespace: this.constants.namespace,
       type: this.constants.actions.deselect,
       record: _record
@@ -40,7 +40,7 @@ export let SelectableActions = ComposedActions => class extends ComposedActions 
   }
 
   deselectMultiple(_records) {
-    this.dispatcher.dispatch({
+    this.__dispatcher.dispatch({
       namespace: this.constants.namespace,
       type: this.constants.actions.deselectMultiple,
       records: _records
