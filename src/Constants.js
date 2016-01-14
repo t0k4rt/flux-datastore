@@ -7,11 +7,13 @@ class Constants {
   constructor(namespace, actions) {
     this.namespace = namespace;
 
-    // _actions
+    // map with action names / internal action type used in dispatcher
     this.actions = Object.assign({
-      create: "create",
-      update: "update",
-      delete: "delete"
+      init:    "init",
+      initOne: "init_one",
+      create:  "create",
+      update:  "update",
+      delete:  "delete"
     }, actions);
   }
 
@@ -33,6 +35,10 @@ class Constants {
 
   updateDict() {
     this.__dict = Immutable.Map(this.actions).flip();
+  }
+
+  getTypeFromAction(_action) {
+    return this.__dict.get(_action);
   }
 }
 
