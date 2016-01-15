@@ -4,8 +4,8 @@ export let FilterableActions = ComposedActions => class extends ComposedActions 
 
   filter(_criterion, _keys) {
     this.__dispatcher.dispatch({
-      namespace: this.constants.namespace,
-      type: this.constants.actions.filter,
+      namespace: this.__constants.namespace,
+      type: this.__constants.actions.filter,
       criterion: _criterion,
       keys: _keys
     })
@@ -13,8 +13,8 @@ export let FilterableActions = ComposedActions => class extends ComposedActions 
 
   resetFilter() {
     this.__dispatcher.dispatch({
-      namespace: this.constants.namespace,
-      type: this.constants.actions.resetFilter,
+      namespace: this.__constants.namespace,
+      type: this.__constants.actions.resetFilter,
     })
   }
 };
