@@ -6,7 +6,7 @@ import debounce from "lodash.debounce"
 let _defaultFilterFunction = function(value, key) {
   let result = false;
   for(let field of this.filterKeys) {
-    if(value.get(field).indexOf(this.filterStr) > -1) {
+    if(value.get(field) && value.get(field).indexOf(this.filterStr) > -1) {
       result = true;
       break;
     }
