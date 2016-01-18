@@ -5,7 +5,9 @@ import { EventEmitter } from "events";
 
 let _defaultEvents = {
   change:   'change',
-  success:  'success',
+  create:   'create',
+  update:   'update',
+  delete:   'delete',
   error:    'error'
 };
 
@@ -180,9 +182,8 @@ class BaseStore extends EventEmitter {
 
         // add item to dict to be able to find it from id
         this.__addToDict(r);
-        //todo : migrate these events
-        //this.emit(this.events.success);
-        //this.emit(this.events.change);
+
+        return r;
       }
     } else {
       throw new Error("Model invalid, does not support __cid");
@@ -261,10 +262,11 @@ class BaseStore extends EventEmitter {
         .context(context)
         .create(record)
         .then(function(record){
-          this.__add(record);
+          // r is the updated version of record (with __cid set)
+          let r = this.__add(record);
           this.emit(this.events.change);
-          this.emit(this.events.success);
-          return Promise.resolve(record);
+          this.emit(this.events.create, r);
+          return Promise.resolve(r);
         }.bind(this))
         .catch(function(error){this.emit(this.events.error, error)}.bind(this));
 
@@ -282,10 +284,9 @@ class BaseStore extends EventEmitter {
       throw new Error("Cannot update non synced entity.");
     }
 
-    // should update and sync ?
+    //don't edit and sync if records are equals.
     let originalRecord = this.__collection.get(record.get("__cid"));
     if(Immutable.is(record, originalRecord)) {
-      this.__edit(record);
       return Promise.resolve(record);
     }
 
@@ -296,13 +297,14 @@ class BaseStore extends EventEmitter {
         .then(function(record){
           this.__edit(record);
           this.emit(this.events.change);
-          this.emit(this.events.success);
+          this.emit(this.events.update, record);
           return Promise.resolve(record);
         }.bind(this))
         .catch(function(error){this.emit(this.events.error, error)}.bind(this));
 
     } else {
       this.__edit(record);
+      this.emit(this.events.success, record);
       return Promise.resolve(record);
     }
   }
@@ -318,7 +320,7 @@ class BaseStore extends EventEmitter {
           .then(function(record){
             this.__remove(record);
             this.emit(this.events.change);
-            this.emit(this.events.success);
+            this.emit(this.events.delete, record);
             return Promise.resolve(record);
           }.bind(this))
           .catch(function(error){this.emit(this.events.error, error)}.bind(this));
