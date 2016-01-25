@@ -12,6 +12,12 @@ let _defaultSortFunction = function(a, b) {
     valueB = b.get("__cid");
   }
 
+  // If the values are strings
+  if(typeof valueA == 'string' && typeof valueB == 'string') {
+    return valueA.localeCompare(valueB);
+  }
+
+  // If the values are numbers
   if(valueA === valueB)
     return 0;
   else
@@ -57,8 +63,13 @@ export let SortableStore = ComposedStore => class extends ComposedStore {
   /** Sort collection section **/
   /*****************************/
   sort({keys}) {
-    this.__resetSortable();
-    this.__sortKeys = keys||["id"];
+    if(this.__sortKeys.join() != keys.join()) {
+      this.__resetSortable();
+      this.__reverse = true;
+    }
+
+    this.reverse();
+    this.__sortKeys = keys || ["id"];
     this.emit(this.events.sort);
   }
 
@@ -70,8 +81,3 @@ export let SortableStore = ComposedStore => class extends ComposedStore {
     this.__reverse = !this.__reverse;
   }
 };
-
-
-
-
-
