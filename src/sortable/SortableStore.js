@@ -12,11 +12,6 @@ let _defaultSortFunction = function(a, b) {
     valueB = b.get("__cid");
   }
 
-  // If the values are strings
-  if(typeof valueA == 'string' && typeof valueB == 'string') {
-    return valueA.localeCompare(valueB);
-  }
-
   // If the values are numbers
   if(valueA === valueB)
     return 0;
