@@ -103,23 +103,41 @@ class BaseStore extends EventEmitter {
   }
 
   __loadData(data) {
-    this.__collection = this.__collection.clear();
+    this.__collection = Immutable.Map();
     this.__dict = this.__dict.clear();
     this.__parseCollection(data);
 
+    //return this.__collection__;
     return this.getAll();
   }
 
   __loadDataBis(data) {
     this.__collection = Immutable.Map();
     this.__dict = Immutable.Map();
-    this.__parseCollection(data);
+    this.__parseCollectionBis(data);
 
     return this.getAll();
   }
 
   __parseCollection(data) {
-    data.forEach((elt, index) => {
+    let j =0;
+    let collection = Immutable.Map();
+    let dict = Immutable.Map();
+
+    data.forEach((elt) => {
+      let r = this.record.fromJS(elt);
+      r = r.set("__cid", "c"+j);
+      collection = collection.set("c"+j, r);
+      dict = dict.set(r.id, "c"+j);
+      ++j;
+    });
+    this.__collection = collection;
+    this.__dict = dict;
+    this.__counter = j;
+  }
+
+  __parseCollectionBis(data) {
+    data.forEach((elt) => {
       let record = this.__parseModel(elt);
       this.__add(record);
     });
@@ -158,7 +176,6 @@ class BaseStore extends EventEmitter {
     // if cid is not empty it means it wal already added, this should not throw an error, but maybe we should trigger an edit
     if(!r.get("__cid")) {
       // set cid from internal collection counter
-      this.__counter = this.__counter+1;
       r=r.set("__cid", "c"+this.__counter);
 
       // if sync is not set and id is not set, we forge a new id
@@ -173,6 +190,7 @@ class BaseStore extends EventEmitter {
       // add item to dict to be able to find it from id
       this.__addToDict(r);
 
+      ++this.__counter;
       return r;
     } else {
       console.warn("Record has been already added to the collection.")
