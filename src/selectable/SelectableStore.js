@@ -62,7 +62,7 @@ export let SelectableStore = ComposedStore => class extends ComposedStore {
         this.__selection = this.__selection.set(record.__cid, record);
       }
     } else {
-      throw new Error("Bad record");
+      throw new Error("Record is null or malformed.");
     }
   }
 

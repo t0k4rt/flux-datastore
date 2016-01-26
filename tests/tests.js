@@ -10,54 +10,58 @@ import Benchmark from 'benchmark';
 
 let testDispatcher = new Dispatcher();
 
-QUnit.test("Test __computeDiff function", function( assert ) {
-  let namespace = "k";
-  let actions = {
-      create: "create",
-      update: "update",
-      delete: "delete",
-      filter: "filter",
-      resetFilter: "reset_filter",
-      sort: "sort",
-      resetSort: "reset_sort",
-      reverse: "reverse"
-    };
-  let k = new Constants(namespace, actions);
-  let tr = Record({id: null, a:1, b:2});
-  let ts = new BaseStore(tr, k, testDispatcher);
+// QUnit.test("Test __computeDiff function", function( assert ) {
+//   let namespace = "k";
+//   let actions = {
+//     init:     'init',
+//     initOne:  'initOne',
+//     create: "create",
+//     update: "update",
+//     delete: "delete",
+//     filter: "filter",
+//     resetFilter: "reset_filter",
+//     sort: "sort",
+//     resetSort: "reset_sort",
+//     reverse: "reverse"
+//   };
+//   let k = new Constants(namespace, actions);
+//   let tr = Record({id: null, a:1, b:2});
+//   let ts = new BaseStore(tr, k, testDispatcher);
 
-  let dataCollection = [
-    {id: 1, a:"aaa", b:"bbb"},
-    {id: 2, a:"bbb", b:"ccc"},
-    {id: 3, a:"ccc", b:"ddd"},
-    {id: 4, a:"abc", b:"bcd"}
-  ];
+//   let dataCollection = [
+//     {id: 1, a:"aaa", b:"bbb"},
+//     {id: 2, a:"bbb", b:"ccc"},
+//     {id: 3, a:"ccc", b:"ddd"},
+//     {id: 4, a:"abc", b:"bcd"}
+//   ];
 
-  ts.__parseCollection(dataCollection);
+//   ts.__parseCollection(dataCollection);
 
-  let dataCollectionBis = [
-    {id: 5, a:"ccc", b:"ddd"},
-    {id: 6, a:"abc", b:"bcd"}
-  ];
-  dataCollectionBis.concat(ts.__collection.slice(2).toList().toJS());
+//   let dataCollectionBis = [
+//     {id: 5, a:"ccc", b:"ddd"},
+//     {id: 6, a:"abc", b:"bcd"}
+//   ];
+//   dataCollectionBis.concat(ts.__collection.slice(2).toList().toJS());
 
-  let diff = ts.__computeDiff(dataCollectionBis, "id");
-  assert.equal(diff.length, 2);
-});
+//   let diff = ts.__computeDiff(dataCollectionBis, "id");
+//   assert.equal(diff.count(), 2);
+// });
 
 
 QUnit.test("Test constant actions", function( assert ) {
   let namespace = "k";
   let actions = {
-      create: "create",
-      update: "update",
-      delete: "delete",
-      filter: "filter",
-      resetFilter: "reset_filter",
-      sort: "sort",
-      resetSort: "reset_sort",
-      reverse: "reverse"
-    };
+    init:     'init',
+    initOne:  'initOne',
+    create: "create",
+    update: "update",
+    delete: "delete",
+    filter: "filter",
+    resetFilter: "reset_filter",
+    sort: "sort",
+    resetSort: "reset_sort",
+    reverse: "reverse"
+  };
   let k = new Constants(namespace, actions);
 
   assert.ok(typeof k.actions === "object", "type of action should be an object");
@@ -73,15 +77,17 @@ QUnit.test("Test constant actions", function( assert ) {
 QUnit.test("Test store private methods", function( assert ) {
   let namespace = "k";
   let actions = {
-      create: "create",
-      update: "update",
-      delete: "delete",
-      filter: "filter",
-      resetFilter: "reset_filter",
-      sort: "sort",
-      resetSort: "reset_sort",
-      reverse: "reverse"
-    };
+    init:     'init',
+    initOne:  'initOne',
+    create: "create",
+    update: "update",
+    delete: "delete",
+    filter: "filter",
+    resetFilter: "reset_filter",
+    sort: "sort",
+    resetSort: "reset_sort",
+    reverse: "reverse"
+  };
   let k = new Constants(namespace, actions);
   let tr = Record({id: null, a:1, b:2});
   let ts = new BaseStore(tr, k, testDispatcher);
@@ -120,15 +126,17 @@ QUnit.test("Test refresh collection and merge", function( assert ) {
 
   let namespace = "k";
   let actions = {
-      create: "create",
-      update: "update",
-      delete: "delete",
-      filter: "filter",
-      resetFilter: "reset_filter",
-      sort: "sort",
-      resetSort: "reset_sort",
-      reverse: "reverse"
-    };
+    init:     'init',
+    initOne:  'initOne',
+    create: "create",
+    update: "update",
+    delete: "delete",
+    filter: "filter",
+    resetFilter: "reset_filter",
+    sort: "sort",
+    resetSort: "reset_sort",
+    reverse: "reverse"
+  };
   let k = new Constants(namespace, actions);
   let tr = Record({id: null, a:1, b:2});
   let ts = new BaseStore(tr, k, testDispatcher);
@@ -191,15 +199,17 @@ QUnit.test("Test refresh collection and merge", function( assert ) {
 QUnit.test("Test CRUD", function( assert ) {
   let namespace = "k";
   let actions = {
-      create: "create",
-      update: "update",
-      delete: "delete",
-      filter: "filter",
-      resetFilter: "reset_filter",
-      sort: "sort",
-      resetSort: "reset_sort",
-      reverse: "reverse"
-    };
+    init:     'init',
+    initOne:  'initOne',
+    create: "create",
+    update: "update",
+    delete: "delete",
+    filter: "filter",
+    resetFilter: "reset_filter",
+    sort: "sort",
+    resetSort: "reset_sort",
+    reverse: "reverse"
+  };
   let k = new Constants(namespace, actions);
   let tr = Record({id: null, a:1, b:2});
   let ts = new BaseStore(tr, k, testDispatcher);
@@ -229,6 +239,8 @@ QUnit.test("Test CRUD", function( assert ) {
 
   let _r2 = ts.get(2);
   ts.delete({record: _r2});
+  console.log("undefined", ts.getAll().toJS());
+  console.log("__dict", ts.__dict.toJS());
   assert.notOk(ts.get(2));
   assert.notOk(ts.__dict.get(2));
   assert.equal(ts.getAll().count(), 3, "should rest 3 elts in collection");
@@ -237,15 +249,17 @@ QUnit.test("Test CRUD", function( assert ) {
 QUnit.test("Test filter collections", function( assert ) {
   let namespace = "k";
   let actions = {
-      create: "create",
-      update: "update",
-      delete: "delete",
-      filter: "filter",
-      resetFilter: "reset_filter",
-      sort: "sort",
-      resetSort: "reset_sort",
-      reverse: "reverse"
-    };
+    init:     'init',
+    initOne:  'initOne',
+    create: "create",
+    update: "update",
+    delete: "delete",
+    filter: "filter",
+    resetFilter: "reset_filter",
+    sort: "sort",
+    resetSort: "reset_sort",
+    reverse: "reverse"
+  };
   let k = new Constants(namespace, actions);
   let tr = Record({id: null, a:1, b:2});
 
@@ -263,13 +277,13 @@ QUnit.test("Test filter collections", function( assert ) {
   ];
   ts.__parseCollection(dataCollection);
 
-  ts.__filter({criterion: "b", keys: ["a"]});
+  ts.filter({criterion: "b", keys: ["a"]});
   assert.equal(ts.getFiltered().count(),2, "filtered collection should count 2 elts");
-  ts.__filter({criterion: "b", keys: ["a", "b"]})
+  ts.filter({criterion: "b", keys: ["a", "b"]})
   assert.equal(ts.getFiltered().count(),3, "filtered collection should count 3 elts");
-  ts.__filter({criterion: "d", keys: ["a", "b"]})
+  ts.filter({criterion: "d", keys: ["a", "b"]})
   assert.equal(ts.getFiltered().count(),2, "filtered collection should count 2 elts");
-  ts.__filter({criterion: "bc", keys: ["a", "b"]})
+  ts.filter({criterion: "bc", keys: ["a", "b"]})
   assert.equal(ts.getFiltered().count(),1, "filtered collection should count 1 elts");
   ts.resetFilter();
   assert.equal(ts.getFiltered().count(),4, "filtered collection should match collection");
@@ -278,15 +292,17 @@ QUnit.test("Test filter collections", function( assert ) {
 QUnit.test("Test sort collections", function( assert ) {
   let namespace = "k";
   let actions = {
-      create: "create",
-      update: "update",
-      delete: "delete",
-      filter: "filter",
-      resetFilter: "reset_filter",
-      sort: "sort",
-      resetSort: "reset_sort",
-      reverse: "reverse"
-    };
+    init:     'init',
+    initOne:  'initOne',
+    create: "create",
+    update: "update",
+    delete: "delete",
+    filter: "filter",
+    resetFilter: "reset_filter",
+    sort: "sort",
+    resetSort: "reset_sort",
+    reverse: "reverse"
+  };
   let k = new Constants(namespace, actions);
   let tr = Record({id: null, a:1, b:2});
 
@@ -321,16 +337,17 @@ QUnit.test("Test sort collections", function( assert ) {
 QUnit.test("Test toggleable collections", function( assert ) {
   let namespace = "k";
   let actions = {
-      create: "create",
-      update: "update",
-      delete: "delete",
-      filter: "filter",
-      toggle: "toggle",
-      resetFilter: "reset_filter",
-      sort: "sort",
-      resetSort: "reset_sort",
-      reverse: "reverse"
-    };
+    init:     'init',
+    initOne:  'initOne',
+    create: "create",
+    update: "update",
+    delete: "delete",
+    filter: "filter",
+    resetFilter: "reset_filter",
+    sort: "sort",
+    resetSort: "reset_sort",
+    reverse: "reverse"
+  };
   let k = new Constants(namespace, actions);
   let tr = Record({id: null, a:1, b:2, enabled: false});
 
@@ -358,17 +375,17 @@ QUnit.test("Test toggleable collections", function( assert ) {
 QUnit.test("Test selectable collections", function( assert ) {
   let namespace = "k";
   let actions = {
-      create: "create",
-      update: "update",
-      delete: "delete",
-      filter: "filter",
-      toggle: "toggle",
-      select: "select",
-      resetFilter: "reset_filter",
-      sort: "sort",
-      resetSort: "reset_sort",
-      reverse: "reverse"
-    };
+    init:     'init',
+    initOne:  'initOne',
+    create: "create",
+    update: "update",
+    delete: "delete",
+    filter: "filter",
+    resetFilter: "reset_filter",
+    sort: "sort",
+    resetSort: "reset_sort",
+    reverse: "reverse"
+  };
   let k = new Constants(namespace, actions);
   let tr = Record({id: null, a:1, b:2, enabled: false});
 
@@ -405,17 +422,17 @@ QUnit.test("Test selectable collections", function( assert ) {
 QUnit.test("Test multiples behaviors", function( assert ) {
   let namespace = "k";
   let actions = {
-      create: "create",
-      update: "update",
-      delete: "delete",
-      filter: "filter",
-      toggle: "toggle",
-      select: "select",
-      resetFilter: "reset_filter",
-      sort: "sort",
-      resetSort: "reset_sort",
-      reverse: "reverse"
-    };
+    init:     'init',
+    initOne:  'initOne',
+    create: "create",
+    update: "update",
+    delete: "delete",
+    filter: "filter",
+    resetFilter: "reset_filter",
+    sort: "sort",
+    resetSort: "reset_sort",
+    reverse: "reverse"
+  };
   let k = new Constants(namespace, actions);
   let tr = Record({id: null, a:1, b:2, enabled: false});
 
@@ -447,5 +464,24 @@ QUnit.test("Test multiples behaviors", function( assert ) {
   ts.__collection__ = Immutable.Map();
   assert.ok(ts.getAll().count() == 0, "with sortable behavior, __collection should resolve to __collection__");
   assert.ok(ts.getFiltered().count() == 0, "with sortable behavior, __collection should resolve to __collection__");
+});
+
+
+
+QUnit.test("Promises test", function( assert ) {
+  console.log("promises !!");
+
+  let p = Promise.resolve("coucou");
+
+  p.then(function() {
+    console.log("promises !!");
+    return Promise.reject(new Error("error"));
+    //throw new Error("error");
+  })
+  //.catch(function(error){ console.log("promise error", error); })
+  .then(function() {
+    return Promise.resolve();
+  }).catch(function(error){ console.log("promise error", error); })
+  assert.ok(true);
 });
 

@@ -4,6 +4,8 @@ import Immutable from "immutable";
 import { EventEmitter } from "events";
 
 let _defaultEvents = {
+  init:     'init',
+  initOne:  'initOne',
   change:   'change',
   create:   'create',
   update:   'update',
@@ -42,46 +44,35 @@ class BaseStore extends EventEmitter {
     this.__dispatchToken = this.__dispatcher.register(this.payloadHandler.bind(this));
     this.__dict = Immutable.Map();
     this.__sync = sync;
-    this.__initialized = false;
   }
 
   /********************/
   /**  Init scripts  **/
   /********************/
   init({context, params} = {}) {
-    if(!this.__initialized) {
-      if(this.__sync) {
-        window.setTimeout((function() { this.__initialized = false; }).bind(this), 1500);
-        return this.__sync
-          .context(context)
-          .fetchAll(params)
-          .then(function(result){
-            this.__initialized = true;
-            return Promise.resolve(this.__loadData(result));
-          }.bind(this));
-      } else {
-        this.__initialized = true;
-      }
+    if(this.__sync) {
+      return this.__sync
+        .context(context)
+        .fetchAll(params)
+        .then(function(result){
+          return Promise.resolve(this.__loadData(result));
+        }.bind(this));
     } else {
       return Promise.resolve(this.getAll())
     }
   }
 
   initOne({id, context, params} = {}) {
-    if(!this.__initialized) {
-      if(this.__sync) {
-        return this.__sync
-          .context(context)
-          .fetch(id, params)
-          .then(function(result){
-            return Promise.resolve(this.__loadData([result]));
-          }.bind(this))
-          .then(function(){
-            return Promise.resolve(this.get(id));
-          }.bind(this));
-      } else {
-        this.__initialized = true;
-      }
+    if(this.__sync) {
+      return this.__sync
+        .context(context)
+        .fetch(id, params)
+        .then(function(result){
+          return Promise.resolve(this.__loadData([result]));
+        }.bind(this))
+        .then(function(){
+          return Promise.resolve(this.get(id));
+        }.bind(this));
     } else {
       return Promise.resolve(this.get(id));
     }
@@ -164,47 +155,55 @@ class BaseStore extends EventEmitter {
   /********************/
 
   __add(r) {
-    // on check que l'élément accepte les __cid
-    if(r.has("__cid")) {
-      // cid must be empty / null
-      if(!r.get("__cid")) {
-        // set cid from internal collection counter
-        this.__counter = this.__counter+1;
-        r=r.set("__cid", "c"+this.__counter);
+    // if cid is not empty it means it wal already added, this should not throw an error, but maybe we should trigger an edit
+    if(!r.get("__cid")) {
+      // set cid from internal collection counter
+      this.__counter = this.__counter+1;
+      r=r.set("__cid", "c"+this.__counter);
 
-        // when there is no sync, there is no id so we forge one
-        if(!this.__sync && !r.get("id")) {
-          r = r.set("id", guid());
-        }
-
-        // Set map with __cid and record
-        this.__collection = this.__collection.set(r.get("__cid"), r);
-
-        // add item to dict to be able to find it from id
-        this.__addToDict(r);
-
-        return r;
+      // if sync is not set and id is not set, we forge a new id
+      // when id is already set, we conserve it
+      if(!this.__sync && !r.get("id")) {
+        r = r.set("id", guid());
       }
+
+      // Set map with __cid and record
+      this.__collection = this.__collection.set(r.get("__cid"), r);
+
+      // add item to dict to be able to find it from id
+      this.__addToDict(r);
+
+      return r;
     } else {
-      throw new Error("Model invalid, does not support __cid");
+      console.warn("Record has been already added to the collection.")
     }
   }
 
   __edit(r) {
-    this.__collection = this.__collection.set(r.get("__cid"), r);
+    if(r.get("__cid")
+      && this.__collection.has(r.get("__cid")))
+    {
+      this.__collection = this.__collection.set(r.get("__cid"), r);
+    } else {
+      throw Error("Cannot edit record.");
+    }
   }
 
   __remove(r) {
-    let cid = r.get("__cid");
-    // force id to string
-    let id = (r.get("id")).toString();
-    this.__collection = this.__collection.remove(cid);
-    this.__dict = this.__dict.remove(id);
+    if(r.get("__cid")
+      && this.__collection.has(r.get("__cid"))
+      && this.__dict.has(r.get("id").toString()))
+    {
+      this.__collection = this.__collection.remove(r.get("__cid"));
+      this.__dict = this.__dict.remove(r.get("id").toString());
+    } else {
+      throw Error("Cannot remove record.");
+    }
   }
 
   __addToDict(r) {
     // check if id is set
-    if(!r.has("id") || !r.get("id")) {
+    if(!r.get("id")) {
       throw new Error("Cannot index record without id.");
     }
     // force id to string
@@ -221,9 +220,13 @@ class BaseStore extends EventEmitter {
     return this.__collection.get(cid);
   }
 
-  __assertRecord(_record) {
+  __checkRecord(_record) {
     if(!(_record instanceof Immutable.Record)) {
       throw new Error("The record instance needs to be an instance of Immutable.Record");
+    }
+
+    if(!_record.has("__cid")) {
+      throw new Error("The record instance needs to have a __cid key");
     }
   }
 
@@ -235,13 +238,11 @@ class BaseStore extends EventEmitter {
     if(id) {
       // force id to string
       id = id.toString();
-      let cid = this.__dict.get(id);
-      if(cid) {
-        return this.__getByCid(cid);
-      } else {
-        return undefined;
-      }
+      let cid = this.__dict.get(id)||-1;
 
+      console.log("cid check",cid, this.__dict.get(id));
+      // should return undefind if id does not exist
+      return this.__getByCid(cid);
     }
     throw Error("missing id");
   }
@@ -255,8 +256,8 @@ class BaseStore extends EventEmitter {
   /**********************/
 
   // todo : when dealing with record, we should check that it is an instance of Record
-  create({record, context} = {}) {
-    this.__assertRecord(record);
+  __create({record, context} = {}) {
+    this.__checkRecord(record);
     if(this.__sync) {
       return this.__sync
         .context(context)
@@ -264,28 +265,37 @@ class BaseStore extends EventEmitter {
         .then(function(record){
           // r is the updated version of record (with __cid set)
           let r = this.__add(record);
-          this.emit(this.events.change);
-          this.emit(this.events.create, r);
           return Promise.resolve(r);
         }.bind(this))
-        .catch(function(error){this.emit(this.events.error, error)}.bind(this));
-
     } else {
       this.__add(record);
       return Promise.resolve(record);
     }
   }
 
-  update({record, context} = {}) {
-    this.__assertRecord(record);
+  create(...args) {
+    this.__create(...args)
+    .then(function(record) {
+      this.emit(this.events.change);
+      this.emit(this.events.create, record);
+    }.bind(this))
+    .catch(function(error){this.emit(this.events.error, error)}.bind(this));
+  }
 
+  __update({record, context} = {}) {
+    this.__checkRecord(record);
+
+    let originalRecord = this.__collection.get(record.get("__cid"));
+
+    // check if record exist
+    if(!originalRecord) {
+      throw new Error("Record does not exist in collection.");
+    }
     // can update ?
     if(!record.get("id")) {
-      throw new Error("Cannot update non synced entity.");
+      throw new Error("Cannot update non persisted entity.");
     }
-
     //don't edit and sync if records are equals.
-    let originalRecord = this.__collection.get(record.get("__cid"));
     if(Immutable.is(record, originalRecord)) {
       return Promise.resolve(record);
     }
@@ -296,42 +306,57 @@ class BaseStore extends EventEmitter {
         .update(record)
         .then(function(record){
           this.__edit(record);
-          this.emit(this.events.change);
-          this.emit(this.events.update, record);
           return Promise.resolve(record);
-        }.bind(this))
-        .catch(function(error){this.emit(this.events.error, error)}.bind(this));
-
+        }.bind(this));
     } else {
       this.__edit(record);
-      this.emit(this.events.success, record);
       return Promise.resolve(record);
     }
   }
 
-  delete({record, context} = {}) {
-    this.__assertRecord(record);
+  update(...args) {
+    this.__update(...args)
+    .then(function(record) {
+      this.emit(this.events.change);
+      this.emit(this.events.update, record);
+    }.bind(this))
+    .catch(function(error){this.emit(this.events.error, error)}.bind(this));
+  }
 
-    if(record.get("__cid") && record.get("id")) {
-      if(this.__sync) {
-        return this.__sync
-          .context(context)
-          .delete(record)
-          .then(function(record){
-            this.__remove(record);
-            this.emit(this.events.change);
-            this.emit(this.events.delete, record);
-            return Promise.resolve(record);
-          }.bind(this))
-          .catch(function(error){this.emit(this.events.error, error)}.bind(this));
+  __delete({record, context} = {}) {
+    this.__checkRecord(record);
 
-      } else {
-        this.__remove(record);
-        return Promise.resolve(record);
-      }
-    } else {
-      throw new Error("Cannot remove this record from collection, no __cid or id");
+    // check if record exist in collection (we check __dict)
+    if(!this.__dict.has(record.get("id").toString())) {
+      throw new Error("Record does not exist in collection.");
     }
+
+    // can update ?
+    if(!record.get("id")) {
+      throw new Error("Cannot update non persisted entity.");
+    }
+
+    if(this.__sync) {
+      return this.__sync
+        .context(context)
+        .delete(record)
+        .then(function(record){
+          this.__remove(record);
+          return Promise.resolve(record);
+        }.bind(this));
+    } else {
+      this.__remove(record);
+      return Promise.resolve(record);
+    }
+  }
+
+  delete(...args) {
+    this.__delete(...args)
+    .then(function(record) {
+      this.emit(this.events.change);
+      this.emit(this.events.delete, record);
+    }.bind(this))
+    .catch(function(error){this.emit(this.events.error, error)}.bind(this));
   }
 
   /**********************/
@@ -367,7 +392,7 @@ class BaseStore extends EventEmitter {
       fn = Reflect.get(this,fn);
       Reflect.apply(fn, this, [payload]);
     } else {
-      console.error('no function found to handle ' + fn);
+      throw new Error('no function found for ' + fn);
     }
   }
 }

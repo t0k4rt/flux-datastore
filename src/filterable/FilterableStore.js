@@ -29,7 +29,7 @@ export let FilterableStore = ComposedStore => class extends ComposedStore {
     this.__filtering = false;
     this.__debouncedelay = 300;
 
-    // debounced emitfilter
+    // debounced emitfilter, it's easier than debouncing filter function
     this.__emitFilter = debounce(
       function() {
         if(this.filterStr.length > 0) {
