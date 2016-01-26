@@ -9,8 +9,6 @@ class Constants {
 
     // map with action names / internal action type used in dispatcher
     this.actions = Object.assign({
-      init:    "init",
-      initOne: "init_one",
       create:  "create",
       update:  "update",
       delete:  "delete"

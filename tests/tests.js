@@ -77,8 +77,6 @@ QUnit.test("Test constant actions", function( assert ) {
 QUnit.test("Test store private methods", function( assert ) {
   let namespace = "k";
   let actions = {
-    init:     'init',
-    initOne:  'initOne',
     create: "create",
     update: "update",
     delete: "delete",
@@ -126,8 +124,6 @@ QUnit.test("Test refresh collection and merge", function( assert ) {
 
   let namespace = "k";
   let actions = {
-    init:     'init',
-    initOne:  'initOne',
     create: "create",
     update: "update",
     delete: "delete",
@@ -199,8 +195,6 @@ QUnit.test("Test refresh collection and merge", function( assert ) {
 QUnit.test("Test CRUD", function( assert ) {
   let namespace = "k";
   let actions = {
-    init:     'init',
-    initOne:  'initOne',
     create: "create",
     update: "update",
     delete: "delete",
@@ -249,8 +243,6 @@ QUnit.test("Test CRUD", function( assert ) {
 QUnit.test("Test filter collections", function( assert ) {
   let namespace = "k";
   let actions = {
-    init:     'init',
-    initOne:  'initOne',
     create: "create",
     update: "update",
     delete: "delete",
@@ -292,8 +284,6 @@ QUnit.test("Test filter collections", function( assert ) {
 QUnit.test("Test sort collections", function( assert ) {
   let namespace = "k";
   let actions = {
-    init:     'init',
-    initOne:  'initOne',
     create: "create",
     update: "update",
     delete: "delete",
@@ -337,8 +327,6 @@ QUnit.test("Test sort collections", function( assert ) {
 QUnit.test("Test toggleable collections", function( assert ) {
   let namespace = "k";
   let actions = {
-    init:     'init',
-    initOne:  'initOne',
     create: "create",
     update: "update",
     delete: "delete",
@@ -375,8 +363,6 @@ QUnit.test("Test toggleable collections", function( assert ) {
 QUnit.test("Test selectable collections", function( assert ) {
   let namespace = "k";
   let actions = {
-    init:     'init',
-    initOne:  'initOne',
     create: "create",
     update: "update",
     delete: "delete",
@@ -422,8 +408,6 @@ QUnit.test("Test selectable collections", function( assert ) {
 QUnit.test("Test multiples behaviors", function( assert ) {
   let namespace = "k";
   let actions = {
-    init:     'init',
-    initOne:  'initOne',
     create: "create",
     update: "update",
     delete: "delete",
