@@ -41,7 +41,7 @@ class BaseStore extends EventEmitter {
 
     // data ttl in local db
     this.__ttl = 10000; //ms
-    this.__tableRecord = Immutable.Record({__counter:0, __collection:Immutable.Map(), __dict: Immutable.Map(), __expire: Date.now()});
+    this.__tableRecord = Immutable.Record({__counter:0, __collection:Immutable.Map(), __dict: Immutable.Map(), __expire: Date.now()-this.__ttl});
 
     // init db
     this.__key = this.__generateKey({}, {});
@@ -165,7 +165,7 @@ class BaseStore extends EventEmitter {
 
     //update table
     table = table.withMutations(map => {
-      map.set("__dict", __dict).set("__collection", __collection).set("__counter", __counter);
+      map.set("__dict", __dict).set("__collection", __collection).set("__counter", __counter).set("__expire", Date.now());
     });
 
     return table;
