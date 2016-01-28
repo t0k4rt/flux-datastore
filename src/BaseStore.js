@@ -125,7 +125,6 @@ class BaseStore extends EventEmitter {
   }
 
 
-
   /****************/
   /**   Parsing  **/
   /****************/
@@ -187,8 +186,8 @@ class BaseStore extends EventEmitter {
     // sync exists
     // table does not exist
     // table expire date has expired and sync is defined
-    //if( (!table || (table && table.__expire <= (Date.now() - this.__ttl))) && this.__sync) {
-    if(this.__sync) {
+    if( (!table || (table && table.__expire <= (Date.now() - this.__ttl))) && this.__sync) {
+    //if(this.__sync) {
       return this.__sync
       .context(context)
       .fetchAll(params)
@@ -213,9 +212,9 @@ class BaseStore extends EventEmitter {
         .context(context)
         .fetch(id, params)
         .then(function(result){
-          return Promise.resolve(this.__parseResult(result, table));
+          return Promise.resolve(this.__parseResult([result], table));
         }.bind(this))
-         .then(this.__updateTable)
+        .then(this.__updateTable.bind(this))
         .then(function(){
           return Promise.resolve(this.get(id));
         }.bind(this));
@@ -227,25 +226,18 @@ class BaseStore extends EventEmitter {
   //todo : check this
   refresh({record, context, params} = {}) {
     this.key = this.__generateKey(context, params);
+    let table = this.__getCurrentTable();
 
-    let id = record.get("id");
     if(this.__sync) {
       return this.__sync
         .context(context)
         .fetch(id, params)
         .then(function(result){
-          let newRecord = this.__parseModel(result);
-          let oldRecord = this.get(id);
-          // we check that record already exists
-          if(oldRecord) {
-            //copy old record cid to new record cid.
-            this.__edit(newRecord.set("__cid", oldRecord.get("__cid")));
-          } else {
-            // if record not exists we add it to collection
-            this.__add(newRecord);
-          }
+          return Promise.resolve(this.__parseResult([result], table));
+        }.bind(this))
+        .then(this.__updateTable.bind(this))
+        .then(function(){
           return Promise.resolve(this.get(id));
-
         }.bind(this));
     } else {
       return Promise.resolve(this.get(id));
