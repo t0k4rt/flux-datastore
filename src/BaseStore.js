@@ -195,10 +195,10 @@ class BaseStore extends EventEmitter {
       .then(function(result){
         return Promise.resolve(this.__parseResult(result, table));
       }.bind(this))
-      .then(this.__updateTable)
+      .then(this.__updateTable.bind(this))
       .then(function() {
         return Promise.resolve(this.getAll());
-      });
+      }.bind(this));
     } else {
       return Promise.resolve(this.getAll());
     }
