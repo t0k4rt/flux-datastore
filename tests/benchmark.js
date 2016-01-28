@@ -28,6 +28,16 @@ while(i < 10000) {
   i++;
 }
 
+i=0;
+let dataCollection2 = [];
+while(i < 10000) {
+  if(Math.random() > 0.5) {
+    dataCollection2.push({id: i, nom: faker.name.lastName(), prenom: faker.name.firstName()});
+  }
+  i++;
+}
+
+
 //console.log("Generated fake data", dataCollection);
 // let dataCollectionModified = [];
 // i = 0
@@ -36,30 +46,30 @@ while(i < 10000) {
 //   i++;
 // }
 
-// let s = performance.now();
-// dataCollection = JSON.parse(JSON.stringify(dataCollection));
-// let e = performance.now();
-// console.log("timing",e-s);
+// let s,e;
+// console.log("parse dataCollection");
+// s = performance.now();
+// ts.__loadData(dataCollection);
+// e = performance.now();
+// console.log("dataCollection timing",e-s);
+// console.log("size",ts.__collection.count());
+
+// console.log("parse dataCollection");
+// s = performance.now();
+// ts.__loadData(dataCollection);
+// e = performance.now();
+// console.log("dataCollection timing",e-s);
+// console.log("size",ts.__collection.count());
+
+// console.log("parse dataCollection2");
+// s = performance.now();
+// ts.__loadData(dataCollection2);
+// e = performance.now();
+// console.log("dataCollection2 timing",e-s);
+// console.log("size",ts.__collection.count());
 
 
-// let s1 = performance.now();
-// let map = Immutable.Map();
-// let dict = Immutable.Map();
-// let j=1;
-// dataCollection.forEach(function(value){
-//   let r = tr.fromJS(value);
-//   r = r.set("__cid", "c"+j);
-//   map = map.set("c"+j, r);
-//   dict = dict.set(r.id, "c"+j);
-//   ++j;
-// });
-// let e1 = performance.now();
-// console.log("timing",e1-s1);
-// console.log("map size", map.count());
-
-
-  ts.__loadData(dataCollection);
-  console.log("test __loadData map size",ts.__collection.count());
+let tableRecord = ts.__getCurrentTable();
 
 suite
 .add("1/   test simple array", function() {
@@ -73,9 +83,14 @@ suite
 })
 
 .add("2/   test __loadData", function() {
-  ts.__loadData(dataCollection);
+  ts.__parseResult(dataCollection);
   //console.log("test __loadData map size",ts.__collection.count());
 })
+
+// .add("3/   test __loadData", function() {
+//   ts.__parseResult(dataCollection2);
+//   //console.log("test __loadData map size",ts.__collection.count());
+// })
 
 // .add("2 bis/   test __loadData", function() {
 //   ts.__loadDataBis(dataCollection);

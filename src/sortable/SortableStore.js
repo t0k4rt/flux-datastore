@@ -23,40 +23,47 @@ export let SortableStore = ComposedStore => class extends ComposedStore {
   constructor(record, constants, __dispatcher, sync) {
     super(record, constants, __dispatcher, sync);
 
+    // is sortable flag
+    this.isSortable = true;
+
     // sort
     this.events = Object.assign(this.events, {sort:   'sort'});
     this.__sortKeys = ["id"];
     this.__reverse = false;
     this.sortFunction = _defaultSortFunction;
+
+    this.addListener("__reset", this.__resetSortable);
   }
 
-  getSorted() {
-    // always sort collection by id map
-    let sortedCollection = this.__collection__.sort(this.sortFunction.bind(this));
+  __resetSortable() {
+    this.__sortKeys = ["id"];
+    this.__reverse = false;
+  }
+
+  __sort(__collection) {
+    let sortedCollection = __collection.sort(this.sortFunction.bind(this));
     return this.__reverse ? sortedCollection.reverse() : sortedCollection;
   }
 
-  // override __collection getter so that we always get a sorted collection
-  get __collection() {
-    return this.getSorted();
+  __sortPromise(__collection) {
+    return Promise.Resolve(this.__sort(__collection));
   }
 
-  set __collection(collection) {
-    this.__collection__ = collection;
+  getSorted() {
+    return this.__sort(this.__collection.toSeq());
   }
 
   /*****************************/
   /** Sort collection section **/
   /*****************************/
   sort({keys}) {
-    this.resetSort();
+    this.__resetSortable();
     this.__sortKeys = keys||["id"];
     this.emit(this.events.sort);
   }
 
   resetSort() {
-    this.__sortKeys = [];
-    this.__reverse = false;
+    this.__resetSortable();
   }
 
   reverse() {

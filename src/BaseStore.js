@@ -29,6 +29,8 @@ class BaseStore extends EventEmitter {
     super();
     this.constants = constants;
     this.record = record;
+
+    // set what parameter from the record is used as id
     this.idMap = "id";
 
     //todo: implement dirty records
@@ -37,39 +39,183 @@ class BaseStore extends EventEmitter {
     // overridable base variables
     this.events = _defaultEvents;
 
-    // PRIVATE IMPORTANT !!!!!
-    this.__counter = 0;
-    this.__collection = Immutable.Map();
+    // data ttl in local db
+    this.__ttl = 10000; //ms
+    this.__tableRecord = Immutable.Record({__counter:0, __collection:Immutable.Map(), __dict: Immutable.Map(), __expire: Date.now()});
+
+    // init db
+    this.__key = this.__generateKey({}, {});
+    this.__db = Immutable.Map().set(this.__key, new this.__tableRecord());
+    this.__useCache = true;
+
+    // list of parameters to reset when init is called;
+    this.__toReset = [];
+
+    // internal
     this.__dispatcher = __dispatcher;
     this.__dispatchToken = this.__dispatcher.register(this.payloadHandler.bind(this));
-    this.__dict = Immutable.Map();
+
+    // backend sync class
     this.__sync = sync;
+  }
+
+
+  /*********************************/
+  /**  get set overrides scripts  **/
+  /*********************************/
+  // override collection
+  get collection() {
+    return this.__collection;
+  }
+
+  set collection(collection) {
+    this.__collection = collection;
+  }
+
+  // override __collection
+  get __collection() {
+    return this.__db.getIn([this.__key, "__collection"]);
+  }
+
+  set __collection(collection) {
+    this.__db = this.__db.setIn([this.__key, "__collection"], collection);
+  }
+
+  // override __collection
+  get __dict() {
+    return this.__db.get(this.__key).get("__dict");
+  }
+
+  get key() {
+    return this.__key;
+  }
+
+  set key(key) {
+    // this means we change table so we should reset some parameters
+    if(key != this.__key) {
+      this.emit("__reset");
+    }
+    this.__key = key;
+  }
+
+
+  /****************/
+  /**  DB Utils  **/
+  /****************/
+
+  __generateKey(context, params) {
+    return Immutable.fromJS(Object.assign({ns: this.constants.namespace}, context, params));
+  }
+
+  __getCurrentTable() {
+    return this.__db.get(this.__key);
+  }
+
+  __updateTable(table) {
+    this.__db = this.__db.set(this.__key, table);
+    return Promise.resolve(table);
+  }
+
+  __loadData(data) {
+    this.__updateTable(this.__parseResult(data, this.__getCurrentTable()))
+    .then(function(table){
+      //console.log("table updated", table);
+    });
+    return this.getAll();
+  }
+
+
+
+  /****************/
+  /**   Parsing  **/
+  /****************/
+
+  __parseResult(data, tableRecord) {
+
+    if(!tableRecord) {
+      tableRecord = new this.__tableRecord();
+    }
+
+    let __dict = tableRecord.get("__dict");
+    let __collection = tableRecord.get("__collection");
+    let __counter = tableRecord.get("__counter");
+
+
+    data.forEach((elt) => {
+      let id = elt.id.toString();
+      if(!__dict.has(id)) {
+
+        let r = this.__parseModel(elt);
+        let __cid = `c${__counter}`;
+
+        r = r.set("__cid", __cid);
+        __collection = __collection.set(__cid, r);
+        __dict = __dict.set(r.id.toString(), __cid);
+        ++__counter;
+
+
+      } else {
+        let __cid = __dict.get(id);
+        let r = this.__parseModel(elt);
+        r = r.set("__cid", __cid);
+        if(!Immutable.is(r, __collection.get(__cid))) {
+          //console.log("got different data", r.toJS());
+          __collection = __collection.set(__cid, r);
+        }
+      }
+    });
+
+    //update table
+    tableRecord = tableRecord.withMutations(map => {
+      map.set("__dict", __dict).set("__collection", __collection).set("__counter", __counter);
+    });
+
+    return tableRecord;
+  }
+
+  __parseModel(data) {
+    return this.record.fromJS(data);
   }
 
   /********************/
   /**  Init scripts  **/
   /********************/
   init({context, params} = {}) {
-    if(this.__sync) {
+    this.key = this.__generateKey(context, params);
+    let __tr = this.__getCurrentTable();
+
+    // We only fetch when :
+    // sync exists
+    // table does not exist
+    // table expire date has expired and sync is defined
+    if( (!__tr || (__tr && __tr.__expire <= (Date.now() - this.__ttl))) && this.__sync) {
       return this.__sync
-        .context(context)
-        .fetchAll(params)
-        .then(function(result){
-          return Promise.resolve(this.__loadData(result));
-        }.bind(this));
+      .context(context)
+      .fetchAll(params)
+      .then(function(result){
+        return Promise.resolve(this.__parseResult(__tr, result));
+      }.bind(this))
+      .then(this.__updateTable(resultTable))
+      .then(function() {
+        return Promise.resolve(this.getAll());
+      });
     } else {
-      return Promise.resolve(this.getAll())
+      return Promise.resolve(this.getAll());
     }
   }
 
   initOne({id, context, params} = {}) {
-    if(this.__sync) {
+    this.key = this.__generateKey(context, params);
+    let __tr = this.__getCurrentTable();
+
+    if( (!__tr || (__tr && __tr.__expire <= (Date.now() - this.__ttl))) && this.__sync) {
       return this.__sync
         .context(context)
         .fetch(id, params)
         .then(function(result){
-          return Promise.resolve(this.__loadData([result]));
+          return Promise.resolve(this.__parseResult(__tr, [result]));
         }.bind(this))
+         .then(this.__updateTable(resultTable))
         .then(function(){
           return Promise.resolve(this.get(id));
         }.bind(this));
@@ -78,7 +224,10 @@ class BaseStore extends EventEmitter {
     }
   }
 
+  //todo : check this
   refresh({record, context, params} = {}) {
+    this.key = this.__generateKey(context, params);
+
     let id = record.get("id");
     if(this.__sync) {
       return this.__sync
@@ -96,147 +245,17 @@ class BaseStore extends EventEmitter {
             this.__add(newRecord);
           }
           return Promise.resolve(this.get(id));
+
         }.bind(this));
     } else {
       return Promise.resolve(this.get(id));
     }
   }
 
-  __loadData(data) {
-    this.__collection = Immutable.Map();
-    this.__dict = this.__dict.clear();
-    this.__parseCollection(data);
-
-    //return this.__collection__;
-    return this.getAll();
-  }
-
-  __loadDataBis(data) {
-    this.__collection = Immutable.Map();
-    this.__dict = Immutable.Map();
-    this.__parseCollectionBis(data);
-
-    return this.getAll();
-  }
-
-  __parseCollection(data) {
-    let j =0;
-    let collection = Immutable.Map();
-    let dict = Immutable.Map();
-
-    data.forEach((elt) => {
-      let r = this.record.fromJS(elt);
-      r = r.set("__cid", "c"+j);
-      collection = collection.set("c"+j, r);
-      dict = dict.set(r.id, "c"+j);
-      ++j;
-    });
-    this.__collection = collection;
-    this.__dict = dict;
-    this.__counter = j;
-  }
-
-  __parseCollectionBis(data) {
-    data.forEach((elt) => {
-      let record = this.__parseModel(elt);
-      this.__add(record);
-    });
-  }
-
-  __parseModel(data) {
-    return this.record.fromJS(data);
-  }
-
-  __computeDiff(toCompare, criterion) {
-    let __ids = this.__dict.flip().toList().toArray();
-    let __diff = [];
-    toCompare.forEach(function(value){
-      if(__ids.indexOf((value[criterion]).toString()) === -1) {
-        __diff.push(value);
-      }
-    });
-    return __diff;
-  }
-
-  __loadDiffData(data) {
-    let diff = this.__computeDiff(data, this.idMap);
-    this.__parseCollection(diff);
-    return this.getAll();
-  }
-
-  __mergeData(data) {
-    //todo : do data merge here but it is complicated
-  }
 
   /********************/
   /**  Base methods  **/
   /********************/
-
-  __add(r) {
-    // if cid is not empty it means it wal already added, this should not throw an error, but maybe we should trigger an edit
-    if(!r.get("__cid")) {
-      // set cid from internal collection counter
-      r=r.set("__cid", "c"+this.__counter);
-
-      // if sync is not set and id is not set, we forge a new id
-      // when id is already set, we conserve it
-      if(!this.__sync && !r.get("id")) {
-        r = r.set("id", guid());
-      }
-
-      // Set map with __cid and record
-      this.__collection = this.__collection.set(r.get("__cid"), r);
-
-      // add item to dict to be able to find it from id
-      this.__addToDict(r);
-
-      ++this.__counter;
-      return r;
-    } else {
-      console.warn("Record has been already added to the collection.")
-    }
-  }
-
-  __edit(r) {
-    if(r.get("__cid")
-      && this.__collection.has(r.get("__cid")))
-    {
-      this.__collection = this.__collection.set(r.get("__cid"), r);
-    } else {
-      throw Error("Cannot edit record.");
-    }
-  }
-
-  __remove(r) {
-    if(r.get("__cid")
-      && this.__collection.has(r.get("__cid"))
-      && this.__dict.has(r.get("id").toString()))
-    {
-      this.__collection = this.__collection.remove(r.get("__cid"));
-      this.__dict = this.__dict.remove(r.get("id").toString());
-    } else {
-      throw Error("Cannot remove record.");
-    }
-  }
-
-  __addToDict(r) {
-    // check if id is set
-    if(!r.get("id")) {
-      throw new Error("Cannot index record without id.");
-    }
-    // force id to string
-    let id = r.get("id").toString();
-    // check if record has not already been indexed
-    if(this.__dict.has(id)) {
-      console.warn("Record has been already indexed.", id);
-    } else {
-      this.__dict = this.__dict.set(id, r.get("__cid"));
-    }
-  }
-
-  __getByCid(cid) {
-    return this.__collection.get(cid);
-  }
 
   __checkRecord(_record) {
     if(!(_record instanceof Immutable.Record)) {
@@ -248,26 +267,94 @@ class BaseStore extends EventEmitter {
     }
   }
 
+  __add(r) {
+    // if cid is not empty it means it wal already added, this should not throw an error, but maybe we should trigger an edit
+    if(!r.get("__cid")) {
+      let table = this.__getCurrentTable();
+      // set cid from internal collection counter
+      r=r.set("__cid", `c${table.__counter}`);
+
+      // if sync is not set and id is not set, we forge a new id
+      // when id is already set, we conserve it
+      if(!this.__sync && !r.get("id")) {
+        r = r.set("id", guid());
+      }
+
+      // update collection, dict and counter
+      let counter = table.__counter + 1;
+      table = table.withMutations(function(t) {
+        t.setIn(["__collection", r.get("__cid")], r)
+        .setIn(["__dict", r.get("id").toString()], r.get("__cid"))
+        .set("__counter", counter);
+      });
+
+      this.__updateTable(table);
+      return r;
+
+    } else {
+      console.warn("Record has been already added to the collection.")
+    }
+  }
+
+  __edit(r) {
+    let table = this.__getCurrentTable();
+
+    if(r.get("__cid")
+      && table.__collection.has(r.get("__cid")))
+    {
+      table = table.setIn(["__collection", r.get("__cid")], r);
+      this.__updateTable(table);
+      return r;
+    } else {
+      throw Error("Cannot edit record.");
+    }
+  }
+
+  __remove(r) {
+    let table = this.__getCurrentTable();
+
+    if(r.get("__cid")
+      && table.__collection.has(r.get("__cid"))
+      && table.__dict.has(r.get("id").toString()))
+    {
+      // Set map with __cid and record
+      table = table.withMutations(function(t) {
+        t.removeIn(["__collection", r.get("__cid")])
+        .removeIn(["__dict", r.get("id").toString()]);
+      });
+      this.__updateTable(table);
+      return r;
+
+    } else {
+      throw Error("Cannot remove record.");
+    }
+  }
+
+
   /********************/
-  /** Public getters **/
+  /** Getters **/
   /********************/
 
-   get(id) {
+  getByCid(cid) {
+    return this.__collection.get(cid);
+  }
+
+  get(id) {
     if(id) {
       // force id to string
       id = id.toString();
       let cid = this.__dict.get(id)||-1;
 
-      console.log("cid check",cid, this.__dict.get(id));
-      // should return undefind if id does not exist
-      return this.__getByCid(cid);
+      // should return undefined if id does not exist
+      return this.getByCid(cid);
     }
     throw Error("missing id");
   }
 
   getAll() {
-    return this.__collection;
+    return this.collection;
   }
+
 
   /**********************/
   /**  actions handler **/

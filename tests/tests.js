@@ -1,3 +1,4 @@
+
 "use strict";
 import Immutable from "immutable";
 import { Dispatcher } from "flux";
@@ -98,11 +99,12 @@ QUnit.test("Test store private methods", function( assert ) {
     {id: 4, a:"abc", b:"bcd"}
   ];
 
+  let tableRecord = ts.__getCurrentTable();
   // test parse collection
-  ts.__parseCollection(dataCollection);
+  let res = ts.__loadData(dataCollection);
 
-
-  assert.equal(ts.getAll().count(),4, "collection should count 4 elts");
+  assert.equal(ts.collection.count(),4, "collection should count 4 elts");
+  assert.equal(ts.__getCurrentTable().__counter,4, "db __counter should equal 4 elts");
 
   let r1 = ts.get(1);
   let __cid = r1.get("__cid");
@@ -112,11 +114,20 @@ QUnit.test("Test store private methods", function( assert ) {
   ts.__edit(r1);
   assert.ok(Immutable.is(ts.get(1), r1), "test elements after edition, elements should be equals (using Immutable.is)");
 
-  // test __remove
-  ts.__remove(r1);
-  assert.notOk(ts.__dict.has("1"), "After remove, __dict should not index element any more");
-  assert.notOk(ts.__collection.has(__cid), "After remove, record with __cid: "+__cid+" should not be present in __collection");
+  //test __add
+  let r5 = new tr({id: 5, a:"abc", b:"bcd"})
+  r5 = ts.__add(r5);
+  assert.equal(ts.collection.count(),5, "collection should count 5 elts");
+  assert.equal(r5.__cid, "c4", "cid should be c4");
+  assert.ok(r5.id);
 
+  // test __remove
+  let r2 = ts.get(2);
+  ts.__remove(r2);
+  let __cid2 = r2.get("__cid");
+  assert.notOk(ts.__dict.has("2"), "After remove, __dict should not index element any more");
+  assert.notOk(ts.__collection.has(__cid2), "After remove, record with __cid: "+__cid2+" should not be present in __collection");
+  assert.equal(ts.__getCurrentTable().__counter,5, "db __counter should equal 5 elts");
 });
 
 
@@ -175,20 +186,6 @@ QUnit.test("Test refresh collection and merge", function( assert ) {
   console.warn("first collection parsing");
   ts.__loadData(dataCollection);
   assert.equal(ts.getAll().count(),4, "collection should count 4 elts");
-
-  dataCollectionModified = [
-    {id: 1, a:"aaa", b:"bbb"},
-    {id: 2, a:"bbb", b:"ccc"},
-    {id: 3, a:"ccc", b:"ddd"},
-    {id: 4, a:"abcd", b:"bcd"}
-  ];
-
-  console.warn("second collection parsing with diff");
-  ts.__loadDiffData(dataCollectionModified);
-
-  console.log("col 2", ts.__collection.toJS());
-  assert.equal(ts.getAll().count(),4, "collection should count 4 elts");
-
 });
 
 
@@ -221,20 +218,19 @@ QUnit.test("Test CRUD", function( assert ) {
   ts.create({record: r3});
   ts.create({record: r4});
 
-  console.log("col", ts.getAll().toJS());
-  console.log("col", ts.__dict.toJS());
+  console.log("__col", ts.getAll().toJS());
+  console.log("__dict", ts.__dict.toJS());
   console.log("record created", ts.get(1).toJS());
 
   assert.equal(ts.getAll().count(),4, "Collection should have 4 elt");
   assert.ok(ts.get(1).get("__cid"), "elements should have a __cid set");
 
   let _r1 = ts.get(1);
-  assert.ok(Immutable.is(ts.__getByCid(_r1.get("__cid")), _r1), "test get by cid");
+  assert.ok(Immutable.is(ts.getByCid(_r1.get("__cid")), _r1), "test get by cid");
 
   let _r2 = ts.get(2);
   ts.delete({record: _r2});
-  console.log("undefined", ts.getAll().toJS());
-  console.log("__dict", ts.__dict.toJS());
+
   assert.notOk(ts.get(2));
   assert.notOk(ts.__dict.get(2));
   assert.equal(ts.getAll().count(), 3, "should rest 3 elts in collection");
@@ -267,10 +263,11 @@ QUnit.test("Test filter collections", function( assert ) {
     {id: 3, a:"ccc", b:"ddd"},
     {id: 4, a:"abc", b:"bcd"},
   ];
-  ts.__parseCollection(dataCollection);
+  ts.__loadData(dataCollection);
 
   ts.filter({criterion: "b", keys: ["a"]});
   assert.equal(ts.getFiltered().count(),2, "filtered collection should count 2 elts");
+  assert.equal(ts.__collection.count(),4, "getAll should have all values");
   ts.filter({criterion: "b", keys: ["a", "b"]})
   assert.equal(ts.getFiltered().count(),3, "filtered collection should count 3 elts");
   ts.filter({criterion: "d", keys: ["a", "b"]})
@@ -280,6 +277,7 @@ QUnit.test("Test filter collections", function( assert ) {
   ts.resetFilter();
   assert.equal(ts.getFiltered().count(),4, "filtered collection should match collection");
 });
+
 
 QUnit.test("Test sort collections", function( assert ) {
   let namespace = "k";
@@ -309,18 +307,17 @@ QUnit.test("Test sort collections", function( assert ) {
     {id: 3, a:"ccc", b:"ddd"},
     {id: 4, a:"abc", b:"bcd"},
   ];
-  ts.__parseCollection(dataCollection);
-  ts.sort({});
-  assert.equal(ts.getAll().first().get("id"),1, "first item of sorted collection should be 1");
-  assert.equal(ts.getAll().last().get("id"),4, "last item of sorted collection should be 4");
+  ts.__loadData(dataCollection);
+  assert.equal(ts.getSorted().first().get("id"),1, "first item of sorted collection should be 1");
+  assert.equal(ts.getSorted().last().get("id"),4, "last item of sorted collection should be 4");
 
   ts.reverse();
-  assert.equal(ts.getAll().first().get("id"),4, "first item of sorted collection should be 4");
-  assert.equal(ts.getAll().last().get("id"),1, "last item of sorted collection should be 1");
+  assert.equal(ts.getSorted().first().get("id"),4, "first item of sorted collection should be 4");
+  assert.equal(ts.getSorted().last().get("id"),1, "last item of sorted collection should be 1");
 
   ts.sort({keys:["a"]});
-  assert.equal(ts.getAll().first().get("id"),1, "first item of sorted collection should be 1");
-  assert.equal(ts.getAll().last().get("id"),3, "last item of sorted collection should be 3");
+  assert.equal(ts.getSorted().first().get("id"),1, "first item of sorted collection should be 1");
+  assert.equal(ts.getSorted().last().get("id"),3, "last item of sorted collection should be 3");
 });
 
 
@@ -336,9 +333,9 @@ QUnit.test("Test toggleable collections", function( assert ) {
     resetSort: "reset_sort",
     reverse: "reverse"
   };
+
   let k = new Constants(namespace, actions);
   let tr = Record({id: null, a:1, b:2, enabled: false});
-
 
   let TestStore = BaseStore.compose([SelectableStore, FilterableStore, SortableStore, ToggleableStore]);
 
@@ -350,7 +347,7 @@ QUnit.test("Test toggleable collections", function( assert ) {
     {id: 3, a:"ccc", b:"ddd"},
     {id: 4, a:"abc", b:"bcd"},
   ];
-  ts.__parseCollection(dataCollection);
+  ts.__loadData(dataCollection);
 
   let r1 = ts.get(1);
   ts.toggle({record: r1});
@@ -386,7 +383,7 @@ QUnit.test("Test selectable collections", function( assert ) {
     {id: 3, a:"ccc", b:"ddd"},
     {id: 4, a:"abc", b:"bcd"},
   ];
-  ts.__parseCollection(dataCollection);
+  ts.__loadData(dataCollection);
 
   ts.select({record: ts.get(1)});
   assert.ok(ts.isSelected(ts.get(1)));
@@ -430,7 +427,7 @@ QUnit.test("Test multiples behaviors", function( assert ) {
     {id: 3, a:"ccc", b:"ddd"},
     {id: 4, a:"abc", b:"bcd"},
   ];
-  ts.__parseCollection(dataCollection);
+  ts.__loadData(dataCollection);
 
   ts.select({record: ts.get(1)});
   assert.ok(ts.isSelected(ts.get(1)));
@@ -442,30 +439,30 @@ QUnit.test("Test multiples behaviors", function( assert ) {
   assert.notOk(ts.isSelected(ts.get(3)));
   assert.equal(ts.getSelection().count(), 1);
 
-  assert.ok(ts.getFiltered().count() == ts.getAll().count());
+  assert.ok(ts.getFiltered().count() == ts.getAll().count(), "filtered collection should have same size as collection");
 
   // with sortable behavior, __collection should resolve to __collection__
-  ts.__collection__ = Immutable.Map();
-  assert.ok(ts.getAll().count() == 0, "with sortable behavior, __collection should resolve to __collection__");
-  assert.ok(ts.getFiltered().count() == 0, "with sortable behavior, __collection should resolve to __collection__");
+  ts.__collection = Immutable.Map();
+  assert.ok(ts.getAll().count() == 0, "with sortable behavior, collection should resolve to __collection");
+  assert.ok(ts.getFiltered().count() == 0, "with sortable behavior, getFiltered should resolve to __collection");
 });
 
 
 
-QUnit.test("Promises test", function( assert ) {
-  console.log("promises !!");
+// QUnit.test("Promises test", function( assert ) {
+//   console.log("promises !!");
 
-  let p = Promise.resolve("coucou");
+//   let p = Promise.resolve("coucou");
 
-  p.then(function() {
-    console.log("promises !!");
-    return Promise.reject(new Error("error"));
-    //throw new Error("error");
-  })
-  //.catch(function(error){ console.log("promise error", error); })
-  .then(function() {
-    return Promise.resolve();
-  }).catch(function(error){ console.log("promise error", error); })
-  assert.ok(true);
-});
+//   p.then(function() {
+//     console.log("promises !!");
+//     return Promise.reject(new Error("error"));
+//     //throw new Error("error");
+//   })
+//   //.catch(function(error){ console.log("promise error", error); })
+//   .then(function() {
+//     return Promise.resolve();
+//   }).catch(function(error){ console.log("promise error", error); })
+//   assert.ok(true);
+// });
 

@@ -7,8 +7,17 @@ export let SelectableStore = ComposedStore => class extends ComposedStore {
   constructor(record, constants, __dispatcher, sync) {
     super(record, constants, __dispatcher, sync);
 
+    // is selectable flag
+    this.isSelectable = true;
+
     // select
     this.events = Object.assign(this.events, {select: 'select'});
+    this.__selection = Immutable.Map();
+
+    this.addListener("__reset", this.__resetSelectable);
+  }
+
+  __resetSelectable() {
     this.__selection = Immutable.Map();
   }
 

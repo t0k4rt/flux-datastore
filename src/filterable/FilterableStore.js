@@ -20,12 +20,14 @@ export let FilterableStore = ComposedStore => class extends ComposedStore {
   constructor(record, constants, __dispatcher, sync) {
     super(record, constants, __dispatcher, sync);
 
+    // is filterable flag
+    this.isFilterable = true;
+
     this.events = Object.assign(this.events, {filter:   'filter'});
     this.triggerFilterAt = 3;
     this.filterStr = "";
     this.filterKeys = [];
     this.filterFunction = _defaultFilterFunction;
-    this.__filteredCollection;
     this.__filtering = false;
     this.__debouncedelay = 300;
 
@@ -37,14 +39,30 @@ export let FilterableStore = ComposedStore => class extends ComposedStore {
         }
       }
       , this.__debouncedelay).bind(this);
+
+    this.addListener("__reset", this.__resetFilterable);
+  }
+
+  __resetFilterable (){
+    this.filterStr = "";
+    this.filterKeys = [];
+    this.__filtering = false;
+  }
+
+  __filter(__collection) {
+    if(this.__filtering) {
+      return __collection.filter(this.filterFunction.bind(this));
+    } else {
+      return __collection;
+    }
+  }
+
+  __filterPromise(__collection) {
+    return Promise.Resolve(this.__filter(__collection));
   }
 
   getFiltered() {
-    if(this.__filtering) {
-      return this.__collection.filter(this.filterFunction.bind(this));
-    } else {
-      return this.getAll();
-    }
+    return this.__filter(this.__collection.toSeq());
   }
 
   /*******************************/
@@ -63,8 +81,7 @@ export let FilterableStore = ComposedStore => class extends ComposedStore {
   }
 
   resetFilter() {
-    this.filterStr = "";
-    this.__filtering = false;
+    this.__resetFilterable();
     this.emit(this.events.filter);
   }
 };
