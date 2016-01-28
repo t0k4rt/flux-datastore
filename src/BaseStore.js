@@ -130,15 +130,15 @@ class BaseStore extends EventEmitter {
   /**   Parsing  **/
   /****************/
 
-  __parseResult(data, tableRecord) {
+  __parseResult(data, table) {
 
-    if(!tableRecord) {
-      tableRecord = new this.__tableRecord();
+    if(!table) {
+      table = new this.__tableRecord();
     }
 
-    let __dict = tableRecord.get("__dict");
-    let __collection = tableRecord.get("__collection");
-    let __counter = tableRecord.get("__counter");
+    let __dict = table.get("__dict");
+    let __collection = table.get("__collection");
+    let __counter = table.get("__counter");
 
 
     data.forEach((elt) => {
@@ -153,7 +153,6 @@ class BaseStore extends EventEmitter {
         __dict = __dict.set(r.id.toString(), __cid);
         ++__counter;
 
-
       } else {
         let __cid = __dict.get(id);
         let r = this.__parseModel(elt);
@@ -166,11 +165,11 @@ class BaseStore extends EventEmitter {
     });
 
     //update table
-    tableRecord = tableRecord.withMutations(map => {
+    table = table.withMutations(map => {
       map.set("__dict", __dict).set("__collection", __collection).set("__counter", __counter);
     });
 
-    return tableRecord;
+    return table;
   }
 
   __parseModel(data) {
@@ -182,20 +181,21 @@ class BaseStore extends EventEmitter {
   /********************/
   init({context, params} = {}) {
     this.key = this.__generateKey(context, params);
-    let __tr = this.__getCurrentTable();
+    let table = this.__getCurrentTable();
 
     // We only fetch when :
     // sync exists
     // table does not exist
     // table expire date has expired and sync is defined
-    if( (!__tr || (__tr && __tr.__expire <= (Date.now() - this.__ttl))) && this.__sync) {
+    //if( (!table || (table && table.__expire <= (Date.now() - this.__ttl))) && this.__sync) {
+    if(this.__sync) {
       return this.__sync
       .context(context)
       .fetchAll(params)
       .then(function(result){
-        return Promise.resolve(this.__parseResult(__tr, result));
+        return Promise.resolve(this.__parseResult(result, table));
       }.bind(this))
-      .then(this.__updateTable(resultTable))
+      .then(this.__updateTable)
       .then(function() {
         return Promise.resolve(this.getAll());
       });
@@ -206,16 +206,16 @@ class BaseStore extends EventEmitter {
 
   initOne({id, context, params} = {}) {
     this.key = this.__generateKey(context, params);
-    let __tr = this.__getCurrentTable();
+    let table = this.__getCurrentTable();
 
-    if( (!__tr || (__tr && __tr.__expire <= (Date.now() - this.__ttl))) && this.__sync) {
+    if( (!table || (table && table.__expire <= (Date.now() - this.__ttl))) && this.__sync) {
       return this.__sync
         .context(context)
         .fetch(id, params)
         .then(function(result){
-          return Promise.resolve(this.__parseResult(__tr, [result]));
+          return Promise.resolve(this.__parseResult(result, table));
         }.bind(this))
-         .then(this.__updateTable(resultTable))
+         .then(this.__updateTable)
         .then(function(){
           return Promise.resolve(this.get(id));
         }.bind(this));
