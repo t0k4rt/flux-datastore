@@ -22,7 +22,7 @@ export let PaginableStore = ComposedStore => class extends ComposedStore {
 
   __resetPaginable() {
     this.__cursor = 1;
-    this.__totalPages = Math.floor((this.collection.count()-1)/this.__itemsPerPage) + 1;
+    this.__totalPages = Math.floor((this.__collection.count()-1)/this.__itemsPerPage) + 1;
   }
 
   __refreshPaginable(__collection) {
@@ -77,7 +77,7 @@ export let PaginableStore = ComposedStore => class extends ComposedStore {
   }
 
   goto({pageNumber} = {}) {
-    if(pagenumber > this.__totalPages || pagenumber < 1) {
+    if(pageNumber > this.__totalPages || pageNumber < 1) {
       console.warning("Page out of bounds.");
     } else {
       this.__cursor = pageNumber;
