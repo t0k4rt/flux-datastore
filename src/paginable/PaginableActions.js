@@ -34,7 +34,7 @@ export let PaginableActions = ComposedActions => class extends ComposedActions {
     this.__dispatcher.dispatch({
       namespace: this.__constants.namespace,
       type: this.__constants.actions.goto,
-      pagertNumber: _pageNumber
+      pageNumber: _pageNumber
     })
   }
 
