@@ -41,7 +41,7 @@ class BaseStore extends EventEmitter {
 
     // data ttl in local db
     this.__ttl = 10000; //ms
-    this.__tableRecord = Immutable.Record({__counter:0, __collection:Immutable.Map(), __dict: Immutable.Map(), __expire: Date.now()-this.__ttl});
+    this.__tableRecord = Immutable.Record({__counter:0, __collection:Immutable.Map(), __dict: Immutable.Map(), __expire: null});
 
     // init db
     this.__key = this.__generateKey({}, {});
@@ -139,29 +139,86 @@ class BaseStore extends EventEmitter {
     let __collection = table.get("__collection");
     let __counter = table.get("__counter");
 
+    // if we get less elements this means there was some data deleted
+    // so we should delete the bad data before merging
+    // if(data.length < __collection.count()) {
+    //   let ids = {};
+    //   data.map(function(elt) {
+    //     ids["elt.id.toString()"] = true;
+    //   });
+
+    //   // find keys to remove
+    //   let __rdict = __dict.filter(function(v, k) {
+    //     return !ids[k.toString()];
+    //   }).flip();
+
+    //   __collection = __collection.filter(function(v, k) {
+    //     return __rdict.has(k);
+    //   });
+
+    //   __dict = __dict.filter(function(v, k) {
+    //     return ids[k.toString()];
+    //   });
+    // }
+
+    // seems to be the most efficient way to parse, taking collection size into account
+    let __col, __di;
+    let __check_same_record = false;
+
+    // when we fetch less data than current collection
+    // it's easier to parse again and recreate a new collection from scratch
+    if(data.length < __collection.count()) {
+      [__col, __di] = [Immutable.Map(), Immutable.Map()];
+    }
+    // but when there is more data fetched, it's better to update and merge the current collection
+    else {
+      [__di, __col] = [__dict, __collection];
+      __check_same_record = true;
+    }
 
     data.forEach((elt) => {
       let id = elt.id.toString();
+
+      // case 1: the record is not in dictionnary so it's a new record we should insert it in collection
       if(!__dict.has(id)) {
 
         let r = this.__parseModel(elt);
         let __cid = `c${__counter}`;
 
         r = r.set("__cid", __cid);
-        __collection = __collection.set(__cid, r);
-        __dict = __dict.set(r.id.toString(), __cid);
+        __col = __col.set(__cid, r);
+        __di = __di.set(r.id.toString(), __cid);
         ++__counter;
-
-      } else {
+      }
+      //case 2: the record is already indexed in dict
+      else {
         let __cid = __dict.get(id);
+
+        // we parse the fetched record and make it look like our local record
+        // this allows us to compare both local and fetched records
         let r = this.__parseModel(elt);
         r = r.set("__cid", __cid);
-        if(!Immutable.is(r, __collection.get(__cid))) {
-          //console.log("got different data", r.toJS());
-          __collection = __collection.set(__cid, r);
+
+        // since __col is equal to __collection we can check for record equality
+        // (we'll be able to find record in _col)
+        if(__check_same_record) {
+          // we update item in __coll only if fetched and local are different
+          if(!Immutable.is(r, __col.get(__cid))) {
+            __col = __col.set(__cid, r);
+          }
+        }
+        // since __col and __di are empty maps
+        // we copy record from __collection to new empty __col
+        // and we re create __dict into __di
+        else {
+          __col = __col.set(__cid, r);
+          __di = __di.set(r.id.toString(), __cid);
         }
       }
     });
+
+    // we update __dict and __collection from temporary __di and __col
+    [__dict, __collection] = [__di, __col];
 
     //update table
     table = table.withMutations(map => {
