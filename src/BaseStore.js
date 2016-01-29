@@ -48,9 +48,6 @@ class BaseStore extends EventEmitter {
     this.__db = Immutable.Map().set(this.__key, new this.__tableRecord());
     this.__useCache = true;
 
-    // list of parameters to reset when init is called;
-    this.__toReset = [];
-
     // internal
     this.__dispatcher = __dispatcher;
     this.__dispatchToken = this.__dispatcher.register(this.payloadHandler.bind(this));
@@ -138,28 +135,6 @@ class BaseStore extends EventEmitter {
     let __dict = table.get("__dict");
     let __collection = table.get("__collection");
     let __counter = table.get("__counter");
-
-    // if we get less elements this means there was some data deleted
-    // so we should delete the bad data before merging
-    // if(data.length < __collection.count()) {
-    //   let ids = {};
-    //   data.map(function(elt) {
-    //     ids["elt.id.toString()"] = true;
-    //   });
-
-    //   // find keys to remove
-    //   let __rdict = __dict.filter(function(v, k) {
-    //     return !ids[k.toString()];
-    //   }).flip();
-
-    //   __collection = __collection.filter(function(v, k) {
-    //     return __rdict.has(k);
-    //   });
-
-    //   __dict = __dict.filter(function(v, k) {
-    //     return ids[k.toString()];
-    //   });
-    // }
 
     // seems to be the most efficient way to parse, taking collection size into account
     let __col, __di;

@@ -2,39 +2,47 @@
 
 export let PaginableActions = ComposedActions => class extends ComposedActions {
 
-  next(_context) {
+  next() {
     this.__dispatcher.dispatch({
       namespace: this.__constants.namespace,
       type: this.__constants.actions.next
     })
   }
 
-  prev(_context) {
+  prev() {
     this.__dispatcher.dispatch({
       namespace: this.__constants.namespace,
       type: this.__constants.actions.prev
     })
   }
 
-  first(_context) {
+  first() {
     this.__dispatcher.dispatch({
       namespace: this.__constants.namespace,
       type: this.__constants.actions.first
     })
   }
 
-  last(_context) {
+  last() {
     this.__dispatcher.dispatch({
       namespace: this.__constants.namespace,
       type: this.__constants.actions.last
     })
   }
 
-  goto(_pageNumber, _context) {
+  goto(_pageNumber) {
     this.__dispatcher.dispatch({
       namespace: this.__constants.namespace,
       type: this.__constants.actions.goto,
       pagertNumber: _pageNumber
+    })
+  }
+
+  goto(_itemsPerPage) {
+    this.__dispatcher.dispatch({
+      namespace: this.__constants.namespace,
+      type: this.__constants.actions.setItemsPerPage,
+      itemsPerPage: _itemsPerPage
     })
   }
 };

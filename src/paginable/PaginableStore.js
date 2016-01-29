@@ -18,10 +18,6 @@ export let PaginableStore = ComposedStore => class extends ComposedStore {
 
     // refresh pagination parameters on internal changes
     this.addListener("__reset", this.__resetPaginable);
-    this.addListener(this.events.change, this.__refreshPaginable);
-    if(this.isFilterable) {
-      this.addListener(this.events.filter, this.__refreshPaginable);
-    }
   }
 
   __resetPaginable() {
@@ -29,20 +25,27 @@ export let PaginableStore = ComposedStore => class extends ComposedStore {
     this.__totalPages = Math.floor((this.collection.count()-1)/this.__itemsPerPage) + 1;
   }
 
-  __refreshPaginable() {
-    this.__totalPages = Math.floor((this.collection.count()-1)/this.__itemsPerPage) + 1;
+  __refreshPaginable(__collection) {
+    this.__totalPages = Math.floor((__collection.count()-1)/this.__itemsPerPage) + 1;
     if(this.__cursor > this.__totalPages) {
-      this.__cursor = this.__totalPages;
-      this.emit(this.events.paginate);
+      this.__cursor = 1;
     }
   }
 
   __paginate(__collection) {
+    this.__refreshPaginable(__collection);
     return __collection.slice((this.__cursor-1)*this.__itemsPerPage, this.__cursor*this.__itemsPerPage);
   }
 
   __paginatePromise(__collection) {
     return Promise.Resolve(this.__paginate(__collection));
+  }
+
+  setItemsPerPage({itemsPerPage}) {
+    if(itemsPerPage != this.__itemsPerPage) {
+      this.__itemsPerPage = itemsPerPage;
+      this.emit(this.events.paginate);
+    }
   }
 
   getPage() {

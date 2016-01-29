@@ -5,4 +5,5 @@ export let PaginableConstants = {
     "first":"first",
     "last":"last",
     "goto":"goto",
+    "setItemsPerPage":"set_items_per_page"
 }
