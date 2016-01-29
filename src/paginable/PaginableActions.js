@@ -38,7 +38,7 @@ export let PaginableActions = ComposedActions => class extends ComposedActions {
     })
   }
 
-  goto(_itemsPerPage) {
+  setItemsPerPage(_itemsPerPage) {
     this.__dispatcher.dispatch({
       namespace: this.__constants.namespace,
       type: this.__constants.actions.setItemsPerPage,
