@@ -113,8 +113,8 @@ class BaseStore extends EventEmitter {
     return Promise.resolve(table);
   }
 
-  __loadData(data) {
-    this.__updateTable(this.__parseResult(data, this.__getCurrentTable()))
+  __loadData(data, merge = false) {
+    this.__updateTable(this.__parseResult(data, this.__getCurrentTable(), merge))
     .then(function(table){
       //console.log("table updated", table);
     });
@@ -126,7 +126,7 @@ class BaseStore extends EventEmitter {
   /**   Parsing  **/
   /****************/
 
-  __parseResult(data, table) {
+  __parseResult(data, table, merge = false) {
 
     if(!table) {
       table = new this.__tableRecord();
@@ -142,7 +142,7 @@ class BaseStore extends EventEmitter {
 
     // when we fetch less data than current collection
     // it's easier to parse again and recreate a new collection from scratch
-    if(data.length < __collection.count()) {
+    if(data.length < __collection.count() && !merge) {
       [__col, __di] = [Immutable.Map(), Immutable.Map()];
     }
     // but when there is more data fetched, it's better to update and merge the current collection
@@ -244,7 +244,7 @@ class BaseStore extends EventEmitter {
         .context(context)
         .fetch(id, params)
         .then(function(result){
-          return Promise.resolve(this.__parseResult([result], table));
+          return Promise.resolve(this.__parseResult([result], table, true));
         }.bind(this))
         .then(this.__updateTable.bind(this))
         .then(function(){
