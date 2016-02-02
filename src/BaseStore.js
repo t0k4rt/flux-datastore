@@ -121,13 +121,108 @@ class BaseStore extends EventEmitter {
     return this.getAll();
   }
 
-
   /****************/
   /**   Parsing  **/
   /****************/
 
   __parseResult(data, table, merge = false, update_expire = true) {
 
+    if(!table) {
+      table = new this.__tableRecord();
+    }
+
+    let __dict = table.get("__dict");
+    let __collection = table.get("__collection");
+    let __counter = table.get("__counter");
+
+    // seems to be the most efficient way to parse, taking collection size into account
+    let __col, __di;
+    let __check_same_record = false;
+
+    // when we fetch less data than current collection
+    // it's easier to parse again and recreate a new collection from scratch
+    if(data.length < __collection.count() && !merge) {
+      [__col, __di] = [Immutable.Map(), Immutable.Map()];
+    }
+    // but when there is more data fetched, it's better to update and merge the current collection
+    else {
+      [__di, __col] = [__dict, __collection];
+      __check_same_record = true;
+    }
+
+    // these are temporary arrays where we will store records and data to insert
+    let _4col = [];
+    let _4dict = [];
+
+    data.forEach((elt) => {
+      let id = elt.id.toString();
+
+      // case 1: the record is not in dictionnary so it's a new record we should insert it in collection
+      if(!__dict.has(id)) {
+        let __cid = `c${__counter}`;
+        elt.__cid = __cid;
+        let r = this.__parseModel(elt);
+        _4col.push(r);
+        _4dict.push(r);
+        ++__counter;
+      }
+      //case 2: the record is already indexed in dict
+      else {
+        let __cid = __dict.get(id);
+
+        // we parse the fetched record and make it look like our local record
+        // this allows us to compare both local and fetched records
+        let r = this.__parseModel(elt);
+        r = r.set("__cid", __cid);
+
+        // since __col is equal to __collection we can check for record equality
+        // (we'll be able to find record in _col)
+        if(__check_same_record) {
+          // we update item in __coll only if fetched and local are different
+           if(!Immutable.is(r, __col.get(__cid))) {
+            _4col.push(r)
+          }
+        } else {
+          // since __col and __di are empty maps
+          // we copy record from __collection to new empty __col
+          // and we re create __dict into __di
+          _4col.push(r);
+          _4dict.push(r);
+        }
+      }
+
+    });
+
+    __col = __col.withMutations(function(c) {
+      _4col.forEach(function(r){
+        c.set(r.__cid, r);
+      })
+    });
+
+    __di = __di.withMutations(function(d) {
+      _4dict.forEach(function(r){
+        d.set(r.id.toString(), r.__cid);
+      })
+    });
+
+    // we update __dict and __collection from temporary __di and __col
+    [__dict, __collection] = [__di, __col];
+
+
+    // set expire date
+    let expire = table.get("__expire");
+    if(update_expire) {
+      expire = Date.now()
+    }
+    //update table
+    table = table.withMutations(map => {
+      map.set("__dict", __dict).set("__collection", __collection).set("__counter", __counter).set("__expire", expire);
+    });
+
+    return table;
+  }
+
+  __parseResultBis(data, table, merge = false, update_expire = true) {
     if(!table) {
       table = new this.__tableRecord();
     }
@@ -234,6 +329,7 @@ class BaseStore extends EventEmitter {
       }.bind(this))
       .then(this.__updateTable.bind(this))
       .then(function() {
+        //console.log("count", this.getAll().count());
         return Promise.resolve(this.getAll());
       }.bind(this));
     } else {

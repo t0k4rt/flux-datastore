@@ -6,7 +6,7 @@ import DataStore, {Record, Constants, BaseStore, Actions} from "../src/DataStore
 import { SortableStore, SortableActions, SortableConstants  } from "../src/sortable/SortableBehavior";
 
 import Benchmark from 'benchmark';
-var faker = require('faker');
+import faker from 'faker';
 
 
 
@@ -23,7 +23,7 @@ let ts = new ComposedStore(tr, k, testDispatcher);
 
 let dataCollection = [];
 let i = 0;
-while(i < 10000) {
+while(i < 5000) {
   dataCollection.push({id: i, nom: faker.name.lastName(), prenom: faker.name.firstName()});
   i++;
 }
@@ -81,10 +81,11 @@ suite
   });
   //console.log("test simple array map size", Object.keys(map).length);
 })
-
-.add("2/   test __loadData", function() {
-  ts.__parseResult(dataCollection);
-  //console.log("test __loadData map size",ts.__collection.count());
+.add("2/   test __parseResult", function() {
+  ts.__parseResult(dataCollection, tableRecord);
+})
+.add("3/   test __parseResultBis", function() {
+  ts.__parseResultBis(dataCollection, tableRecord);
 })
 
 // .add("3/   test __loadData", function() {
