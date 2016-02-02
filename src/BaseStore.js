@@ -126,7 +126,7 @@ class BaseStore extends EventEmitter {
   /**   Parsing  **/
   /****************/
 
-  __parseResult(data, table, merge = false) {
+  __parseResult(data, table, merge = false, update_expire = true;) {
 
     if(!table) {
       table = new this.__tableRecord();
@@ -195,9 +195,15 @@ class BaseStore extends EventEmitter {
     // we update __dict and __collection from temporary __di and __col
     [__dict, __collection] = [__di, __col];
 
+
+    // set expire date
+    let expire = table.get("__expire");
+    if(update_expire) {
+      expire = Date.now()
+    }
     //update table
     table = table.withMutations(map => {
-      map.set("__dict", __dict).set("__collection", __collection).set("__counter", __counter).set("__expire", Date.now());
+      map.set("__dict", __dict).set("__collection", __collection).set("__counter", __counter).set("__expire", expire);
     });
 
     return table;
@@ -244,7 +250,7 @@ class BaseStore extends EventEmitter {
         .context(context)
         .fetch(id, params)
         .then(function(result){
-          return Promise.resolve(this.__parseResult([result], table, true));
+          return Promise.resolve(this.__parseResult([result], table, true, false));
         }.bind(this))
         .then(this.__updateTable.bind(this))
         .then(function(){
