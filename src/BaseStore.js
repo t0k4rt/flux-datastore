@@ -126,7 +126,7 @@ class BaseStore extends EventEmitter {
   /**   Parsing  **/
   /****************/
 
-  __parseResult(data, table, merge = false, update_expire = true;) {
+  __parseResult(data, table, merge = false, update_expire = true) {
 
     if(!table) {
       table = new this.__tableRecord();
