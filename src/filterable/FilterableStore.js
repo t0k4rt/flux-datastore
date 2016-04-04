@@ -6,7 +6,22 @@ import debounce from "lodash.debounce"
 let _defaultFilterFunction = function(value, key) {
   let result = false;
   for(let field of this.filterKeys) {
-    if(value.get(field) && value.get(field).indexOf(this.filterStr) > -1) {
+
+    let valueLowered = null;
+
+    // Lower string or object
+    if(value.get(field)) {
+      if(typeof value.get(field) == 'string') {
+        valueLowered = value.get(field).toLowerCase();
+      }
+      else if(typeof value.get(field) == 'object') {
+        valueLowered = value.get(field).map(function(value) {
+          return value.toLowerCase();
+        });
+      }
+    }
+
+    if (valueLowered && valueLowered.indexOf(this.filterStr.toLowerCase()) > -1) {
       result = true;
       break;
     }
