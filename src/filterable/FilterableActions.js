@@ -11,6 +11,14 @@ export let FilterableActions = ComposedActions => class extends ComposedActions 
     })
   }
 
+  filterMultiple(_criteria) {
+    this.__dispatcher.dispatch({
+      namespace: this.__constants.namespace,
+      type: this.__constants.actions.filterMultiple,
+      criteria: _criteria
+    })
+  }
+
   resetFilter() {
     this.__dispatcher.dispatch({
       namespace: this.__constants.namespace,
