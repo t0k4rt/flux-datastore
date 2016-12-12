@@ -8,17 +8,30 @@ let _defaultFilterSingleFunction = function(value, key) {
   for(let field of this.filterKeys) {
 
     let valueLowered = null;
+    let valueField = value;
+
+    // If there is field nested
+    if(field.indexOf('.') != -1) {
+      let fields = field.split('.');
+
+      for (let i = 0; i < fields.length; i++) {
+        valueField = valueField.get(fields[i]);
+      }
+    }
+    else {
+      valueField = valueField.get(field);
+    }
 
     // Lower string or object
-    if(value.get(field)) {
-      if(typeof value.get(field) == 'string') {
-        valueLowered = value.get(field).toLowerCase();
+    if(valueField) {
+      if(typeof valueField == 'string') {
+        valueLowered = valueField.toLowerCase();
       }
-      else if(typeof value.get(field) == 'number') {
-        valueLowered = String(value.get(field));
+      else if(typeof valueField == 'number') {
+        valueLowered = String(valueField);
       }
-      else if(typeof value.get(field) == 'object') {
-        valueLowered = value.get(field).map(function(value) {
+      else if(typeof valueField == 'object') {
+        valueLowered = valueField.map(function(value) {
           return value.toLowerCase();
         });
       }
