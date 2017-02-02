@@ -38,13 +38,13 @@ let _defaultFilterSingleFunction = function(value, key) {
     }
 
     for(let criterion of this.filterCriteria) {
-      if(value.get(criterion) && value.get(criterion).indexOf(this.filterCriteria.get(criterion)) > -1) {
+      if(value.get(criterion) && value.get(criterion).indexOf(this.filterCriteria.get(criterion)) == 0) {
         result = true;
         break;
       }
     }
 
-    if (valueLowered && valueLowered.indexOf(this.filterStr.toLowerCase()) > -1) {
+    if (valueLowered && valueLowered.indexOf(this.filterStr.toLowerCase()) == 0) {
       result = true;
       break;
     }
@@ -83,7 +83,7 @@ let _defaultFilterMultipleFunction = function(value, key) {
       if(Array.isArray(this.filterCriteria[criterion])) {
         if(this.filterCriteria[criterion].length > 0) {
           for(let i = 0; i < this.filterCriteria[criterion].length; i++) {
-            if(valueLowered.indexOf(this.filterCriteria[criterion][i].toLowerCase()) == -1) {
+            if(valueLowered.indexOf(this.filterCriteria[criterion][i].toLowerCase()) != 0) {
               result = false;
             }
           }
@@ -91,7 +91,7 @@ let _defaultFilterMultipleFunction = function(value, key) {
       }
       // 3b. Else we just compare the criterion value with the list
       else {
-        if(valueLowered.indexOf(this.filterCriteria[criterion].toLowerCase()) == -1) {
+        if(valueLowered.indexOf(this.filterCriteria[criterion].toLowerCase()) != 0) {
           result = false;
         }
       }
