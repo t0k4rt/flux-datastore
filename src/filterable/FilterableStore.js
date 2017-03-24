@@ -38,13 +38,13 @@ let _defaultFilterSingleFunction = function(value, key) {
     }
 
     for(let criterion of this.filterCriteria) {
-      if(value.get(criterion) && value.get(criterion).indexOf(this.filterCriteria.get(criterion)) !== 1) {
+      if(value.get(criterion) && value.get(criterion).indexOf(this.filterCriteria.get(criterion)) !== -1) {
         result = true;
         break;
       }
     }
 
-    if (valueLowered && valueLowered.indexOf(this.filterStr.toLowerCase()) !== 1) {
+    if (valueLowered && valueLowered.indexOf(this.filterStr.toLowerCase()) !== -1) {
       result = true;
       break;
     }
