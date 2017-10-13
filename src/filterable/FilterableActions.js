@@ -11,11 +11,12 @@ export let FilterableActions = ComposedActions => class extends ComposedActions 
     })
   }
 
-  filterMultiple(_criteria) {
+  filterMultiple(_criteria, _eqSearch) {
     this.__dispatcher.dispatch({
       namespace: this.__constants.namespace,
       type: this.__constants.actions.filterMultiple,
-      criteria: _criteria
+      criteria: _criteria,
+      eqSearch: _eqSearch
     })
   }
 
