@@ -93,7 +93,7 @@ let _defaultFilterMultipleFunction = function(value, key) {
       else {
         // If the parameters ask for an strict equal comparaison
         if(this.filterCriteriaEqualSearch[criterion] == true) {
-          if(valueLowered == this.filterCriteria[criterion].toLowerCase()) {
+          if(valueLowered.localeCompare(this.filterCriteria[criterion].toLowerCase()) == 0) {
             result = false;
           }
         }
