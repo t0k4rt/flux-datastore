@@ -91,8 +91,16 @@ let _defaultFilterMultipleFunction = function(value, key) {
       }
       // 3b. Else we just compare the criterion value with the list
       else {
-        if(valueLowered.indexOf(this.filterCriteria[criterion].toLowerCase()) == -1) {
-          result = false;
+        // If the parameters ask for an strict equal comparaison
+        if(this.filterCriteriaStrictSearch[criterion] == true) {
+          if(valueLowered == this.filterCriteria[criterion].toLowerCase()) {
+            result = false;
+          }
+        }
+        else {
+          if(valueLowered.indexOf(this.filterCriteria[criterion].toLowerCase()) == -1) {
+            result = false;
+          }
         }
       }
     }
@@ -126,6 +134,9 @@ export let FilterableStore = ComposedStore => class extends ComposedStore {
     this.filterFunction = this.filterSingleFunction;
     this.__filtering = false;
     this.__debouncedelay = 300;
+
+    // permits to define strict equal comparaison or contains comparaison
+    this.filterCriteriaStrictSearch = [];
 
     // debounced emitfilter, it's easier than debouncing filter function
     this.__emitFilter = debounce(
@@ -178,8 +189,9 @@ export let FilterableStore = ComposedStore => class extends ComposedStore {
     }
   }
 
-  filterMultiple({criteria}) {
+  filterMultiple({criteria, strictSearch}) {
     this.filterCriteria = criteria;
+    this.filterCriteriaStrictSearch = strictSearch;
     this.filterFunction = this.filterMultipleFunction;
     if(this.filterCriteria.length === 0) {
       this.resetFilter();
