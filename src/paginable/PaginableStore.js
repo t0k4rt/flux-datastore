@@ -22,11 +22,13 @@ export let PaginableStore = ComposedStore => class extends ComposedStore {
 
   __resetPaginable() {
     this.__cursor = 1;
-    this.__totalPages = Math.floor((this.__collection.count()-1)/this.__itemsPerPage) + 1;
+    let countCollection = this.__collection ? this.__collection.count() : 0;
+    this.__totalPages = Math.floor((countCollection-1)/this.__itemsPerPage) + 1;
   }
 
   __refreshPaginable(__collection) {
-    this.__totalPages = Math.floor((__collection.count()-1)/this.__itemsPerPage) + 1;
+    let countCollection = __collection ? __collection.count() : 0;
+    this.__totalPages = Math.floor((countCollection-1)/this.__itemsPerPage) + 1;
     if(this.__cursor > this.__totalPages) {
       this.__cursor = 1;
     }
