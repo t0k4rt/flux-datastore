@@ -1,7 +1,7 @@
 {
   "name": "flux-datastore",
   "version": "0.0.1",
-  "description": "flux datastore test",
+  "description": "flux datastore",
   "main": "lib/DataStore.js",
   "dependencies": {
     "flux": "^2.1.1",
