@@ -15,7 +15,9 @@ let _defaultFilterSingleFunction = function(value, key) {
       let fields = field.split('.');
 
       for (let i = 0; i < fields.length; i++) {
-        valueField = valueField.get(fields[i]);
+        if (valueField) {
+          valueField = valueField.get(fields[i]);
+        }
       }
     }
     else {
