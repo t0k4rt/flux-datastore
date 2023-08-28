@@ -17,6 +17,20 @@ Immutable.Record.prototype.toJSON = function() {
   return toStringify;
 }
 
+Immutable.Record.prototype.toJSONWithPrefix = function (prefix) {
+  let toStringify = this.toJS();
+
+  for (const k in toStringify) {
+    if (prefix != "") {
+      toStringify[prefix + "." + k] = toStringify[k];
+      delete toStringify[k];
+    }
+  }
+
+  delete toStringify["__cid"];
+  return toStringify;
+};
+
 let Record = function(defaultValues, name) {
   return Immutable.Record(Object.assign({__cid: null}, defaultValues), name);
 }
