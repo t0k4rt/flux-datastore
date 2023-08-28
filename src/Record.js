@@ -26,7 +26,6 @@ Immutable.Record.prototype.toJSONWithPrefix = function (prefix) {
       delete toStringify[k];
     }
   }
-
   delete toStringify["__cid"];
   return toStringify;
 };
