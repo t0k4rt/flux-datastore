@@ -33,9 +33,11 @@ let _defaultFilterSingleFunction = function(value, key) {
         valueLowered = String(valueField);
       }
       else if(typeof valueField == 'object') {
-        valueLowered = valueField.map(function(value) {
-          return value.toLowerCase();
-        });
+        valueLowered = valueField.toArray().map(function (value) {
+          if (value != null) {
+            return value.toLowerCase();
+          }
+        }).join(',');
       }
     }
 
